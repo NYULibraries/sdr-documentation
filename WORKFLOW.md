@@ -250,7 +250,7 @@ Each GeoServer has access to map data in two ways:
 
 ### Via API
 
-## . Commi o o es ository
+## Commit records to repository
 
 Once you have finalized your metadata records (see step 7), make sure to commit them to the [`edu.nyu` repository](https://github.com/OpenGeoMetadata/edu.nyu). Best practice is to commit your changes on a new collection branch, then issue a pull request from that branch into MASTER.
 

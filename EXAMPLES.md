@@ -11,7 +11,7 @@ Below are glosses on some particularly useful Unix command-line tools for workin
 ```bash
 ## Find all files on your desktop
 cd ~/Desktop
-find . ## the . just means current
+find . ## the . just means current directory
 ```
 
 Note that you can write the output of the above to a text file, instead of to the console:
@@ -67,3 +67,9 @@ curl https://geo.nyu.edu/catalog/nyu_2451_36737.json | jq
 ```
 
 GET commands are great, but `curl` can also be used for any of the other HTTP verbs (PUT, POST, DELETE). Actually, `curl` is used as the back-end for many SdrFriend actions that involve communicating with a web API, so if you ever need to debug something, you can try prying into the `SdrFriend` source code and reconstructing / modying the original `curl` command.
+
+By the way, the same UNIX "write-to-file" logic applies with `curl`:
+
+```bash
+curl https://geo.nyu.edu/catalog/nyu_2451_36737.json > ~/Desktop/nyu_2451_36737.json
+```
