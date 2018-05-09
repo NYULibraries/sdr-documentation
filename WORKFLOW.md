@@ -1,6 +1,10 @@
 # SDR Collection / Acquisitions Workflow
 Stephen Balogh <sgb334@nyu.edu> & Andrew Battista <ab6137@nyu.edu>
 
+### Note
+
+Many of the examples in this document make use of a Ruby gem called **SdrFriend**, so named because of how friendly it is. :smiley:
+The codebase for that tool, as well as documentation (including on how to set it up), can be found at its [Github page](https://github.com/sgbalogh/sdrfriend).
 
 ## 1. Assessment
 
@@ -292,7 +296,19 @@ And you're gcords on Solr
 
 All GeoBlacklight records require a bounding box, which is used both for display purposes (it controls the default zoom, and also is displayed on the index page), as well as indexed for use in the spatial search.
 
-There are a lot of ways to generate this data, but you will probably want to do that automatically. GDAL is useful for this. ** Comment and question here on how we should differentiate between cases in which the coordinates are in the CSV already by being created manually and cases in which we want to use GDAL to extract them and then append to the CSV**
+There are a lot of ways to generate this data, but you will probably want to do that automatically. GDAL is useful for this.
+
+SdrFriend provides a wrapper over GDAL, and a utility for generating `solr_geom` syntax bounding boxes, given a Shapefile. Note that the Shapefile should be in EPSG:4326 (WGS 84) CRS.
+
+```bash
+rake gdal:bounding[/path/to/file.shp]
+```
+
+Or, alternatively, you can use a SdrFriend task for finding all Shapefiles, recursively, existing within a directory, and have the output printed out for all of them:
+
+```bash
+rake gdal:bounding_many[/path/to/shapefile_directory]
+```
 
 ## b. Using the `vector-processing-script` tool
 
