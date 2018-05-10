@@ -5,5 +5,6 @@ A collection of documents detailing workflows, architecture, useful tools, and p
 
 - [SDR on AWS Architecture](sdr-on-aws.md)
 - [Collection / Acquisitions Workflow](accessioning-workflow.md)
-- [Useful Code Examples](code-examples.md)
+- [Useful Code/CLI Examples](code-examples.md)
+- [Snippets of Recyclable Code](snippets.md)
 - [Primer on using the FDA API](fda-api.md)
