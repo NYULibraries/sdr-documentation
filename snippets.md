@@ -21,3 +21,18 @@ zip_paths.each do |zp|
   `cd #{containing_directory}; unzip #{zp}; rm #{zp}`
 end
 ```
+
+## General Ruby Tricks
+
+#### Turn off Ruby interpreter "echo"
+```ruby
+irb_context.echo = false
+```
+
+#### Consume a list in batches
+```ruby
+some_list = (1..10000).to_a ## makes a list from the range 1 -> 10000
+some_list.each_slice(100) do |slice| ## iterates over the list in slices of size 100
+  puts slice[0] ## print the first element of each slice/batch
+end
+```
