@@ -141,3 +141,35 @@ psql --host nyu-geospatial.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com \
   --dbname geospatial_data \
   -w -f nyu_1234_56789.sql
 ```
+
+# Amazon S3
+
+If you plan on interacting with storage on Amazon S3, there are several options as far as interfaces.
+
+### Using the S3 web console
+
+### AWS CLI (Command-line interface)
+
+This is probably the easiest way to upload / download anything more than a single file at a time. See [Amazon's documentation](https://docs.aws.amazon.com/cli/latest/userguide/installing.html) about getting the command line tools installed on your system. You will also need to configure the CLI with your S3 login credentials. Again, see the official Amazon documentation for help with doing that.
+
+Once it is installed, you should have access to commands like:
+
+```bash
+aws s3 ls
+#> nyu-art-politics-city
+#> nyu-cultural-capital
+#> nyu-ds-text-corpora
+#> ...
+```
+
+Synchronize between a local folder and an S3 bucket:
+
+```bash
+aws s3 sync \
+  /local/directory/to/sync \
+  s3://nyu-ds-text-corpora/directory
+```
+
+### A desktop application, like *Transmit*
+
+If you'd prefer an SFTP-like interface to S3, I highly reccomend [Transmit](https://panic.com/transmit/) (Mac only though!). It actually *is* an SFTP client, but it has the ability to interact with S3, as well as many other cloud storage providers.
