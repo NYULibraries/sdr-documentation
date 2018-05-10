@@ -1,4 +1,4 @@
-# Code Snippits
+# Code Snippets
 Stephen Balogh <sgb334@nyu.edu>
 
 Why waste when you can reuse?
