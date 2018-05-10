@@ -371,4 +371,4 @@ In order to run the last command, which connects to PostGIS and attempts to inse
 
 - Link to FDA API primer
 
-- [Removing .DS_Store files](https://jonbellah.com/articles/recursively-remove-ds-stort)
+- [Removing .DS_Store files](https://jonbellah.com/articles/recursively-remove-ds-store)
