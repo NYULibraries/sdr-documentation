@@ -137,3 +137,11 @@ This is something of an "odds and ends" host. It is useful as a gateway into the
 #### Connections
   - Accessible to `P1_1:blacklight-rails` on `8983`
   - Accessible to `P1_1:metadata` on `8983` and `22`
+
+## RDS Databases
+
+| Type | Endpoint | Port | Database Name | Note |
+| ---- |:-------- | ---- | ------------- | ---- |
+| PostgreSQL + PostGIS | `nyu-geospatial.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com` | 5432 | `geospatial_data` | Vector data stored here|
+| MySQL | `geoblacklight-db.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com` | 3306 | `geoblacklight_prod_db` | Production Blacklight user db |
+| MySQL | `geoblacklight-db.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com` | 3306 | `geoblacklight_dev_db` | Development Blacklight user db |
