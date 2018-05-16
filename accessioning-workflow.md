@@ -29,7 +29,7 @@ Once the number of items in a given collection is determined, the next step is t
  - [Spatial Data Repository]("https://archive.nyu.edu/handle/2451/33902") `dspace id: 651`
   -- By default, all items in this collection are public and world-accessible; accordingly, only open-data or non-licensed datasets should go here
  - [Spatial Data Repository (Private)]("https://archive.nyu.edu/handle/2451/33903") `dspace id: 652`
-  -- By default, all items in this collection are visible only to logged in FDA users. The FDA is configured to use NYU SSO, so in effect this means that all items in this collection are visible only to users with NYU login credentials
+  -- By default, all items in this collection are visible only to logged in FDA users. The FDA is configured to use NYU Single Sign On (SSO), so in effect this means that all items in this collection are visible only to users with NYU login credentials
 
 You should determine which of the two collections you want to create records in. Typically, in the course of accessioning a single collection, you will interact only with one of the two.
 
@@ -139,13 +139,10 @@ The same can be said for the codebook or documentation folder that corresponds w
     - variables.xlsx
     - codebook.txt
     - DISTRICT91.shp.xml
-
 ```
 *Above: a sample directory structure for the documentation folder. Note that it could be good practice to put standard metadata files in both the primary download folder and the documentation folder*
 
-There are a litany of ways of outputting files that make it more or less easy to place them within the appropriate folder and file structure. Some of these may involve homegrown scripts, but in either case, even if you're dragging files into a pre-fab list of folders, you're coming out ahead. And the containers will help you to stay organized. After all of the data objects are in the appropriate folders, the next step is to upload basic descriptive metadata into the empty container FDA records we have established.
-
-After all of the files are in place in the appropriate folder, the final part of this process is to run an **SdrFriend** command to zip individual files up into an archive named after the containing folder:
+There are a litany of ways of outputting files that make it more or less easy to place them within the appropriate folder and file structure. Some of these may involve homegrown scripts, but in either case, even if you're dragging files into a pre-fab list of folders, you're coming out ahead. And the containers will help you to stay organized. After all of the files are in place in the appropriate folder, the final part of this process is to run an **SdrFriend** command to zip individual files up into an archive named after the containing folder:
 
 ```bash
 bundle exec rake files:zip_bitstreams[/Users/andrewbattista/Desktop/containers_for_collection]
@@ -167,7 +164,7 @@ After the zips have been created successfully, you might want to open a few of t
 
 ## 5. Upload basic descriptive metadata to FDA
 
-Before all of the primary data bitstreams and documentation bitstreams have been uploaded to the FDA, we need to push our agreed upon rudimentary descriptive metadata to the FDA. In order to do this, we will use the **SDRFriend** GeoBlacklight-to-FDA metadata command:
+Before all of the primary data bitstreams and documentation bitstreams have been uploaded to the FDA, we need to push our agreed upon rudimentary descriptive metadata to the FDA. In order to do this, we will use the **SdrFriend** GeoBlacklight-to-FDA metadata command:
 
 ```bash
 bundle exec rake fda:gbl_to_fda_metadata[/Users/andrewbattista/git/edu.nyu]
@@ -203,7 +200,7 @@ Running this command requires some monitoring. The bitstream uploads may trip up
 
 ## 6b. Retrieve the bitstream URLs to plug into our metadata records
 
-Now that we have uploaded all of the bitstreams to the FDA successfully, we can use **SDRFriend** to retrieve the existing bitstream download URLs, which are important elements for GeoBlacklight metadata. In order to do this, run the following command:
+Now that we have uploaded all of the bitstreams to the FDA successfully, we can use **SdrFriend** to retrieve the existing bitstream download URLs, which are important elements for GeoBlacklight metadata. In order to do this, run the following command:
 ```bash
 bundle exec rake metadata:bithydrate[/Users/andrewbattista/Downloads,UAE_collection_bitstreams]
 # The first part should be a .CSV file that you have. Given the logic of the workflow, it will likely be the same .CSV that you've been using throughout this process to create FDA metadata, GeoBlacklight metadata, etc. The second part of this command generates a new CSV (here you tell it where you want the new file to be)
@@ -212,7 +209,7 @@ After running the command, open up the newly created bistreams CSV with Atom, co
 
 ## 7. Finalize GeoBlacklight Metadata Records and Export as .JSON
 
-Now that you have a completely filled out CSV, use **SDRFriend** to transform it into a single JSON file. First, download or save the file you're working on as a CSV. Then, run the following command:
+Now that you have a completely filled out CSV, use **SdrFriend** to transform it into a single JSON file. First, download or save the file you're working on as a CSV. Then, run the following command:
 
 ```bash
 bundle exec rake metadata:csv_to_json[/Users/sgb334/Downloads/eastview_files.csv,/Users/sgb334/Downloads/eastview_files_singlefile.json]
@@ -258,29 +255,28 @@ parsed_nyu.each do |record|
 
 end
 ```
-At this time, **SDRFriend** does not have a native split function, but this may be developed. For now, this script will work for NYU's naming convention.
+At this time, **SdrFriend** does not have a native split function, but this may be developed. For now, this script will work to produce individual JSON files that adhere to NYU's naming convention for OpenGeoMetadata. Once these folders and files are created, you're ready to move on to step 10, committing these finalized records to the OpenGeoMetadata repository (see below).
 
-Once these folders and files are created, you're ready to move on to step 10, committing these records to the OpenGeoMetadata repository (below).
+## 8a. Create SQL versions of datasets and upload to PostGIS
 
-## 8. Create SQL versions of datasets and upload to PostGIS
-*Note: This step is only relevant for vector files. If you are accessioning raster images, such as GeoTIFFs, skip to step 8.*
+*Note: This step is only relevant for vector files. If you are accessioning raster images, such as GeoTIFFs, skip to step 8b.*
 
-To enable previews and downloads via GeoServer's WMS / WFS services, we have to create a SQL version of our Shapefiles (in the projection EPSG:4326), and add them to the PostGIS database which stores EPSG:4326"preview" versions of every vector layer in our collection.
+To enable previews and downloads via GeoServer's WMS / WFS services, we have to create a SQL version of our Shapefiles (in the projection EPSG:4326), and add them to the PostGIS database which stores EPSG:4326"preview" versions of every vector layer in our collection. Earlier, while assembling bitstream packages for upload to the FDA, the procedure was to simply package up the original geospatial data layer as we downloaded it or received it. Now, however, in order to connect to GeoServer we'll have to make some modifications to it, namely:
 
-Earlier, while assembling bitstream packages for upload to the FDA, the procedure was to simply package up an original geospatial layer. Now, however, we'll have to make some modifications to it, namely:
-
-- Reproject the layer to the standardized CRS of `EPSG:4326` (if it isn't already in that CRS)
+- Reproject the layer to the standardized Coordinate Reference System (CRS) of `EPSG:4326` (if it isn't already in that CRS)
 - Rename the file to represent the Handle associated with it
-  -Earlier we were just naming the containing folder using the Handle convention, and letting the Shapefile keep its original name; now we have to make sure the layer uses the Handle as its name, so that the resulting table on PostGIS is predictably named
+  -Earlier we were just naming the containing folder using the Handle convention, and letting the Shapefile keep its original name; now we have to make sure the layer and all the data files that comprise it uses the Handle as its name, so that the resulting table on PostGIS is predictably named
 - Create a SQL version of the Shapefile
-  -- This involves converting a Shapefile into a SQL script that creates a new table (with name in the pattern `nyu_XXXX_XXXXX`)
+  -This involves converting a Shapefile into a SQL script that creates a new table (with name in the pattern `nyu_XXXX_XXXXX`)
 - Connect to the PostGIS database on AWS and insert the new layer using its SQL script
 
-There is only a single PostGIS database, and it is connected to by both the Public and Restricted GeoServer VMs -- the distinction between "public" and "restricted" is not represented anywhere at the PostGIS level; this is fine, because our PostGIS database is not for consumption by any user other than GeoServer.
+There is only a single PostGIS database, and it is connected to by both the Public and Restricted GeoServer Virtual Machines (VMs). Note that the distinction between "public" and "restricted" is not represented anywhere at the PostGIS level; this is fine, because our PostGIS database is not for consumption by any user other than GeoServer.
 
 See Additional Section `b` below for details on how to perform the conversions and update described above, using a script or some command-line tools.
 
-## b. Upload raster images to GeoServer
+Steps for 
+
+## 8b. Upload raster images to GeoServer
 
 Each GeoServer host (Public and Restricted) has access to a single EFS (Amazon NFS) share that is mounted on both hosts at `/efs`.
 
@@ -295,37 +291,46 @@ ubuntu@ip-172-31-48-183:/efs/geoserver/raster$ cd nyu_2451_34189
 ubuntu@ip-172-31-48-183:/efs/geoserver/raster/nyu_2451_34189$ ls
 nyu_2451_34189.tif
 ```
-##  Enable layers on GeoServer
+##  9. Enable layers on GeoServer
 
-GeoServer can be interacted with through a web-interface, or a REST HTTP API.
+GeoServer can be interacted with through a web-interface, or a REST HTTP API. We will document both methods below, but it is recommended to update layers in batch using the REST API. First, though, it helps to understand the fundamental architecture of NYU's GeoServers.
 
-### Fundamentals
+### Fundamental layout of NYU's GeoServer implementation
 
 We are maintaining two GeoServers:
 
 - Maps-Public ([maps-public.geo.nyu.edu](http://maps-public.geo.nyu.edu))
- -- Accessible to everyone in the world
- -- Contains layers for all NYU hosted records with `"dc_rights_s": "Public"
+ -- Layers published in this instance are accessible to everyone in the world
+ -- This instance contains layers for all NYU hosted records with the `"dc_rights_s": "Public"` value
 - Maps-Restricted ([maps-restricted.geo.nyu.edu](http://maps-restricted.geo.nyu.edu))
-  -- Should be accessible only to NYU IP range, and to other hosts in the AWS virtual cloud
-  -- Contains layers for all NYU hosted records with `"dc_rights_s": "Restricted"
+  -- Layers published in this instance should be accessible only to the NYU IP range, which is already defined in the application, and to other hosts in the AWS virtual cloud
+  -- This instance contains layers for all NYU hosted records with the `"dc_rights_s": "Restricted"` value
 
-Each GeoServer has access to map data in two ways:
+Each GeoServer instance has access to map data in two ways:
 - Vector
   -- Vector data is served through a database connection to our AWS-hosted PostGIS
 - Raster
   -- Raster data is served using files stored on two EBS volumes (one for the Public host, one for the Restricted host), directly mounted on each respective GeoServer host at `/ebs`
 
-### Via web interface
+### Enabling layers via web interface
 
+If you are only intending to publish one or two layers at a time, it might be a good idea to log on to the web interface for the appropriate GeoServer and do it manually. to do this, go to the [Maps-Public] (http://maps-public.geo.nyu.edu) interface, click layer previews, and log in (the username and password are held internally). Once you are logged in, _______ (full instructions TBA).
 
 ### Via API
 
-## Commit records to repository
+Enabling layers via the API is more efficient. In order to do this, use the GeoServer rake task within the **SdrFriend** to enable the layers
 
-Once you have finalized your metadata records (see step 7), make sure to commit them to the [`edu.nyu` repository](https://github.com/OpenGeoMetadata/edu.nyu). Best practice is to commit your changes on a new collection branch, then issue a pull request from that branch into MASTER.
+```bash
+bundle exec rake geoserver:enable[Users/andrewbattista/containers_for_collection]
+## In this command, the path stiuplated is the name of the folder that contains all of the files used to process the collection. This should be the same saved folder used to accomplish step 6a above.
+```
+Once this command happens ________.
 
-A Travis continuous integration (CI) script on GitHub should kick off for any commit. It will attempt to validate every record (using [GeoCombine](https://github.com/OpenGeoMetadata/GeoCombine)), and log the results.
+## 10. Commit records to the OpenGeoMetadata repository
+
+Once you have finalized your metadata records (see step 7), the next step is to commit them to the [`edu.nyu` repository](https://github.com/OpenGeoMetadata/edu.nyu). First, take the newly created folders and files from step 7 and create a new update branch on the edu.nyu master repository. The best practice is then to commit your changes to that new collection branch, then issue a pull request from that branch into the master branch. **It's typically considered poor form to approve your own pull request, so assign it to another member of the geo team**
+
+
 
 Here's a sample workflow with Git:
 
@@ -358,10 +363,14 @@ After that pull request is approved and merged into MASTER, make sure to delete 
 git checkout master
 git pull
 ```
+A Travis continuous integration (CI) script on GitHub should kick off for any commit to the repository. It will attempt to validate every record (using [GeoCombine](https://github.com/OpenGeoMetadata/GeoCombine)), and log the results. In order to see error messages for potentially invalid records ______.
 
-And you're gcords on Solr
+Now that the new metadata records are a part of the master branch of the `edu.nyu` repository, you are ready to index the records into Solr.
 
-## Additional / optional steps
+
+
+
+## Appendix: Additional and optional steps to augment the workflow
 
 ## a. Calculating bounding boxes for `solr_geom` field
 
@@ -383,7 +392,7 @@ rake gdal:bounding_many[/path/to/shapefile_directory]
 
 ## b. Using the `vector-processing-script` tool
 
-If you're reading this documentation, you should also have access to a script located in a directory called `vector-processing-script`. This provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
+If you're reading this documentation, you should also have access to a script located in a directory called `vector-processing-script`, which is currently located within the NYU SDR Google Drive. This provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
 
 #### Install pre-requisite packages
 First, you need to make sure that you've installed all of the prerequisites. On a Mac that has HomeBrew installed, that might look like this:
@@ -436,10 +445,10 @@ psql --host nyu-geospatial.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com \
 In order to run the last command, which connects to PostGIS and attempts to insert the contents of `output.sql` as a new table, you will also need to supply the password for the database (and make sure there are no firewall impediments to you connecting directly to the database). See the credentials documentation for more info.
 
 
-## c.  Caching tile layers to allow for easier page loading
+## c. Caching tile layers to allow for easier page loading
 
 ## d. Miscellaneous tips/tricks/documentation
 
-- Link to FDA API primer
+- Link to FDA API documentation, which is now _________.
 
 - [Removing .DS_Store files](https://jonbellah.com/articles/recursively-remove-ds-store)
