@@ -261,141 +261,20 @@ At this time, **SdrFriend** does not have a native split function, but this may 
 
 *Note: This step is only relevant for vector files. If you are accessioning raster images, such as GeoTIFFs, skip to step 8b.*
 
-To enable previews and downloads via GeoServer's WMS / WFS services, we have to create a SQL version of our Shapefiles (in the projection EPSG:4326), and add them to the PostGIS database which stores EPSG:4326"preview" versions of every vector layer in our collection. Earlier, while assembling bitstream packages for upload to the FDA, the procedure was to simply package up the original geospatial data layer as we downloaded it or received it. Now, however, in order to connect to GeoServer we'll have to make some modifications to it, namely:
+#### Overview of vector processing
 
-- Reproject the layer to the standardized Coordinate Reference System (CRS) of `EPSG:4326` (if it isn't already in that CRS)
-- Rename the file to represent the Handle associated with it
-  -Earlier we were just naming the containing folder using the Handle convention, and letting the Shapefile keep its original name; now we have to make sure the layer and all the data files that comprise it uses the Handle as its name, so that the resulting table on PostGIS is predictably named
-- Create a SQL version of the Shapefile
-  -This involves converting a Shapefile into a SQL script that creates a new table (with name in the pattern `nyu_XXXX_XXXXX`)
+To enable previews and downloads via GeoServer's WMS / WFS services, we have to create a SQL version of our Shapefiles (in the projection EPSG:4326), and add them to the PostGIS database which stores EPSG:4326"preview" versions of every vector layer in our collection. Earlier, while assembling bitstream packages for upload to the FDA, the procedure was to simply package up the original geospatial data layer as we downloaded it or received it. Now, however, in order to connect to GeoServer we'll have to make some modifications to it:
+
+- Reproject the layer to the standardized Coordinate Reference System (CRS) `EPSG:4326` (if it isn't already in that CRS)
+- Rename the file to represent the Handle associated with it. Earlier we were just naming the containing folder using the Handle convention, and letting the Shapefile keep its original name; now we have to make sure the layer and all the data files that comprise it uses the Handle as its name, so that the resulting table on PostGIS is predictably named
+- Create a SQL version of the Shapefile. This involves converting a Shapefile into a SQL script that creates a new table (with name in the pattern `nyu_XXXX_XXXXX`)
 - Connect to the PostGIS database on AWS and insert the new layer using its SQL script
 
-There is only a single PostGIS database, and it is connected to by both the Public and Restricted GeoServer Virtual Machines (VMs). Note that the distinction between "public" and "restricted" is not represented anywhere at the PostGIS level; this is fine, because our PostGIS database is not for consumption by any user other than GeoServer.
+There is only a single PostGIS database, and it is connected to both the Public and Restricted GeoServer Virtual Machines (VMs). Note that the distinction between "public" and "restricted" is not represented anywhere at the PostGIS level; this is fine, because our PostGIS database is not for consumption by any user other than GeoServer.
 
-See Additional Section `b` below for details on how to perform the conversions and update described above, using a script or some command-line tools.
+#### Setting up dependencies for vector processing
 
-Steps for 
-
-## 8b. Upload raster images to GeoServer
-
-Each GeoServer host (Public and Restricted) has access to a single EFS (Amazon NFS) share that is mounted on both hosts at `/efs`.
-
-Raster layers are stored in `/efs/geoserver/raster`:
-
-```bash
-ubuntu@ip-172-31-48-183:~$ cd /efs/geoserver/raster
-ubuntu@ip-172-31-48-183:/efs/geoserver/raster$ ls
-nyu_2451_34189  nyu_2451_37668  nyu_2451_40801  nyu_2451_41076  nyu_2451_41351 ...
-
-ubuntu@ip-172-31-48-183:/efs/geoserver/raster$ cd nyu_2451_34189
-ubuntu@ip-172-31-48-183:/efs/geoserver/raster/nyu_2451_34189$ ls
-nyu_2451_34189.tif
-```
-##  9. Enable layers on GeoServer
-
-GeoServer can be interacted with through a web-interface, or a REST HTTP API. We will document both methods below, but it is recommended to update layers in batch using the REST API. First, though, it helps to understand the fundamental architecture of NYU's GeoServers.
-
-### Fundamental layout of NYU's GeoServer implementation
-
-We are maintaining two GeoServers:
-
-- Maps-Public ([maps-public.geo.nyu.edu](http://maps-public.geo.nyu.edu))
- -- Layers published in this instance are accessible to everyone in the world
- -- This instance contains layers for all NYU hosted records with the `"dc_rights_s": "Public"` value
-- Maps-Restricted ([maps-restricted.geo.nyu.edu](http://maps-restricted.geo.nyu.edu))
-  -- Layers published in this instance should be accessible only to the NYU IP range, which is already defined in the application, and to other hosts in the AWS virtual cloud
-  -- This instance contains layers for all NYU hosted records with the `"dc_rights_s": "Restricted"` value
-
-Each GeoServer instance has access to map data in two ways:
-- Vector
-  -- Vector data is served through a database connection to our AWS-hosted PostGIS
-- Raster
-  -- Raster data is served using files stored on two EBS volumes (one for the Public host, one for the Restricted host), directly mounted on each respective GeoServer host at `/ebs`
-
-### Enabling layers via web interface
-
-If you are only intending to publish one or two layers at a time, it might be a good idea to log on to the web interface for the appropriate GeoServer and do it manually. to do this, go to the [Maps-Public] (http://maps-public.geo.nyu.edu) interface, click layer previews, and log in (the username and password are held internally). Once you are logged in, _______ (full instructions TBA).
-
-### Via API
-
-Enabling layers via the API is more efficient. In order to do this, use the GeoServer rake task within the **SdrFriend** to enable the layers
-
-```bash
-bundle exec rake geoserver:enable[Users/andrewbattista/containers_for_collection]
-## In this command, the path stiuplated is the name of the folder that contains all of the files used to process the collection. This should be the same saved folder used to accomplish step 6a above.
-```
-Once this command happens ________.
-
-## 10. Commit records to the OpenGeoMetadata repository
-
-Once you have finalized your metadata records (see step 7), the next step is to commit them to the [`edu.nyu` repository](https://github.com/OpenGeoMetadata/edu.nyu). First, take the newly created folders and files from step 7 and create a new update branch on the edu.nyu master repository. The best practice is then to commit your changes to that new collection branch, then issue a pull request from that branch into the master branch. **It's typically considered poor form to approve your own pull request, so assign it to another member of the geo team**
-
-
-
-Here's a sample workflow with Git:
-
-```bash
-cd ~/git/edu.nyu
-git checkout master
-git pull ## Make sure you are up to date
-
-## Switch to a new local branch, based on master
-git checkout -b my_new_collection
-```
-
-At this point, I'll add all of my new records to the `~/git/edu.nyu` directory. Once the new files are in place, I can commit and push to GitHub.
-```bash
-git status ## just to inspect the changes
-```
-```bash
-git add . ## Stages all changes
-git commit -m "Adds records for whatever collection"
-
-## Push the commit to a new branch on Github
-git push --set-upstream origin my_new_collection
-```
-
-Now it's off to Github. If you go to the [main page for the repository](https://github.com/OpenGeoMetadata/edu.nyu), you should be able to see that a new branch (`my_new_collection`) was just pushed. Take a look at the branch, and if everything seems good, issue a pull request.
-
-After that pull request is approved and merged into MASTER, make sure to delete the `my_new_collection` branch on Github, since it is no longer needed, and then on your local machine:
-
-```bash
-git checkout master
-git pull
-```
-A Travis continuous integration (CI) script on GitHub should kick off for any commit to the repository. It will attempt to validate every record (using [GeoCombine](https://github.com/OpenGeoMetadata/GeoCombine)), and log the results. In order to see error messages for potentially invalid records ______.
-
-Now that the new metadata records are a part of the master branch of the `edu.nyu` repository, you are ready to index the records into Solr.
-
-
-
-
-## Appendix: Additional and optional steps to augment the workflow
-
-## a. Calculating bounding boxes for `solr_geom` field
-
-All GeoBlacklight records require a bounding box, which is used both for display purposes (it controls the default zoom, and also is displayed on the index page), as well as indexed for use in the spatial search.
-
-There are a lot of ways to generate this data, but you will probably want to do that automatically. GDAL is useful for this.
-
-SdrFriend provides a wrapper over GDAL, and a utility for generating `solr_geom` syntax bounding boxes, given a Shapefile. Note that the Shapefile should be in EPSG:4326 (WGS 84) CRS.
-
-```bash
-rake gdal:bounding[/path/to/file.shp]
-```
-
-Or, alternatively, you can use a SdrFriend task for finding all Shapefiles, recursively, existing within a directory, and have the output printed out for all of them:
-
-```bash
-rake gdal:bounding_many[/path/to/shapefile_directory]
-```
-
-## b. Using the `vector-processing-script` tool
-
-If you're reading this documentation, you should also have access to a script located in a directory called `vector-processing-script`, which is currently located within the NYU SDR Google Drive. This provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
-
-#### Install pre-requisite packages
-First, you need to make sure that you've installed all of the prerequisites. On a Mac that has HomeBrew installed, that might look like this:
+There are a few dependencies and "one time" things that you need to install or set up so that everything within the suite of vector processing scripts will work properly and smoothly. First, on a Mac that has HomeBrew installed already, install GDAL by running this command from Terminal:
 
 ```bash
 brew update
@@ -405,6 +284,29 @@ brew install postgresql ## psql
 brew install gdal ## ogr2ogr
 brew install postgis ## shp2pgsql
 ```
+Another "meta step" is to establish an easy way to creating favorites in the Transmit FTP client
+
+
+once connected to the metadata.geo.nyu.edu use the vector-processing directory and then use input_shp_to_WGS84 folder. Simply dump the folders created in the bitstream package construction step (where the shapefiles are in the folders but not zipped).
+
+
+Here is the command ssh into the metadata server
+
+```bash
+ssh -i /Users/staff/Documents/SDR_Credentials/key-1-jun24-2015.pem ubuntu@metadata.geo.nyu.edu
+```
+After running the command, you may get a message to update the permissions of the key file. In order to do this, run [this one-time command](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)(it's step number 3):
+
+
+
+
+#### Using the `vector-processing-script` tool for actual collection additions
+
+Now you're ready to actually convert the files into SQL tables. If you're reading this documentation, you should also have access to a script located in a directory called `vector-processing-script`. This provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
+
+
+
+
 
 #### Run `vector-processing-script/processing.sh`
 
@@ -445,9 +347,145 @@ psql --host nyu-geospatial.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com \
 In order to run the last command, which connects to PostGIS and attempts to insert the contents of `output.sql` as a new table, you will also need to supply the password for the database (and make sure there are no firewall impediments to you connecting directly to the database). See the credentials documentation for more info.
 
 
-## c. Caching tile layers to allow for easier page loading
 
-## d. Miscellaneous tips/tricks/documentation
+
+
+
+
+
+
+## 8b. Upload raster images to GeoServer
+
+*Note: If the collection items you are processing are Raster (GeoTIFFs), you don't need worry about the entire process described in 8a. Instead, follow this process.*
+
+Each GeoServer host (Public and Restricted) has access to a single EFS (Amazon NFS) share that is mounted on both hosts at `/efs`.
+
+Raster layers are stored in `/efs/geoserver/raster`:
+
+```bash
+ubuntu@ip-172-31-48-183:~$ cd /efs/geoserver/raster
+ubuntu@ip-172-31-48-183:/efs/geoserver/raster$ ls
+nyu_2451_34189  nyu_2451_37668  nyu_2451_40801  nyu_2451_41076  nyu_2451_41351 ...
+
+ubuntu@ip-172-31-48-183:/efs/geoserver/raster$ cd nyu_2451_34189
+ubuntu@ip-172-31-48-183:/efs/geoserver/raster/nyu_2451_34189$ ls
+nyu_2451_34189.tif
+```
+
+##  9. Enable layers on GeoServer
+
+GeoServer can be interacted with through a web-interface, or a REST HTTP API. We will document both methods below, but it is recommended to update layers in batch using the REST API. First, though, it helps to understand the fundamental architecture of NYU's GeoServers.
+
+### Fundamental layout of NYU's GeoServer implementation
+
+We are maintaining two GeoServers:
+
+- Maps-Public ([maps-public.geo.nyu.edu](http://maps-public.geo.nyu.edu))
+ -- Layers published in this instance are accessible to everyone in the world
+ -- This instance contains layers for all NYU hosted records with the `"dc_rights_s": "Public"` value
+- Maps-Restricted ([maps-restricted.geo.nyu.edu](http://maps-restricted.geo.nyu.edu))
+  -- Layers published in this instance should be accessible only to the NYU IP range, which is already defined in the application, and to other hosts in the AWS virtual cloud
+  -- This instance contains layers for all NYU hosted records with the `"dc_rights_s": "Restricted"` value
+
+Each GeoServer instance has access to map data in two ways:
+- Vector
+  -- Vector data is served through a database connection to our AWS-hosted PostGIS
+- Raster
+  -- Raster data is served using files stored on two EBS volumes (one for the Public host, one for the Restricted host), directly mounted on each respective GeoServer host at `/ebs`
+
+### Enabling layers via web interface
+
+If you are only intending to publish one or two layers at a time, it might be a good idea to log on to the web interface for the appropriate GeoServer and do it manually. to do this, go to the [Maps-Public] (http://maps-public.geo.nyu.edu) interface, click layer previews, and log in (the username and password are held internally). Once you are logged in, _______ (full instructions TBA).
+
+### Via API
+
+Enabling layers via the API is more efficient. In order to do this, use the GeoServer rake task within the **SdrFriend** to enable the layers
+
+```bash
+bundle exec rake geoserver:enable[Users/andrewbattista/containers_for_collection]
+## In this command, the path stiuplated is the name of the folder that contains all of the files used to process the collection. This should be the same saved folder used to accomplish step 6a above.
+```
+Once this command happens ________.
+
+## 10. Commit records to the OpenGeoMetadata repository
+
+Once you have finalized your metadata records (see step 7), the next step is to commit them to the [`edu.nyu` repository](https://github.com/OpenGeoMetadata/edu.nyu). First, take the newly created folders and files from step 7 and create a new update branch on the edu.nyu master repository. The best practice is then to commit your changes to that new collection branch, then issue a pull request from that branch into the master branch.
+
+There are two ways to do this: via Git commands or via the GitHub desktop software. Here's the sample workflow with Git:
+```bash
+cd ~/git/edu.nyu
+git checkout master
+git pull
+
+## This initial command makes sure you have downloaded the most current edu.nyu records
+
+## Switch to a new local branch, based on master
+git checkout -b my_new_collection
+```
+
+At this point, I'll add all of my new records to the `~/git/edu.nyu` directory. Once the new files are in place, I can commit and push to GitHub.
+
+```bash
+git status
+
+## just to inspect the changes
+```
+Then:
+
+```bash
+git add . ## Stages all changes
+git commit -m "Adds records for whatever collection"
+
+## Push the commit to a new branch on Github
+git push --set-upstream origin my_new_collection
+```
+
+Now the new records have been posted to Github. If you go to the [main page for the repository](https://github.com/OpenGeoMetadata/edu.nyu), you should be able to see that a new branch (`my_new_collection`) was just pushed. Take a look at the branch, and if everything seems good, issue a pull request. **It's typically considered poor form to approve your own pull request, so assign it to another member of the geo team**
+
+After that pull request is approved and merged into the Master branch, make sure to delete the `my_new_collection` branch on Github, since it is no longer needed, and then delete it on your local machine:
+
+```bash
+git checkout master
+git pull
+```
+
+The final part of this process is doing one more check to ensure that all of the records are GeoBlacklight compliant. A Travis continuous integration (CI) script on GitHub should kick off for any commit to the repository. It will attempt to validate every record (using [GeoCombine](https://github.com/OpenGeoMetadata/GeoCombine)), and log the results. In order to see error messages for potentially invalid records ______. If there are any errors, you can come up with a strategy for fixing them.
+
+## 11. Index newly updated metadata records into Solr
+
+Now that the new metadata records are a part of the master branch of the `edu.nyu` repository, you are ready to index them into Solr.
+
+Instructions TBA
+
+## 12. Rake newly updated metadata records into production instance of GeoBlacklight
+
+The final step in the process is putting the newly created GeoBlacklight records into our production instance of GeoBlacklight. It's always a good idea to set up a test version first to make sure that nothing in the records will "break" our current instance.
+
+Further instructions TBA
+
+## Appendix: Additional and optional steps to augment the workflow
+
+The process above is the essence of the collection workflow, but there are other miscellaneous commands and projects that can be used at various points during the process.
+
+### a. Calculating bounding boxes for `solr_geom` field
+
+All GeoBlacklight records require a bounding box. There are a lot of ways to generate this data, but you will probably want to do that automatically if your collection has many kinds of shapefiles or GeoTIFFs that cover many different areas. GDAL is useful for this. **SdrFriend** provides a wrapper over GDAL, and a utility for generating `solr_geom` syntax bounding boxes, given a Shapefile. Note that the Shapefile should be in EPSG:4326 (WGS 84) CRS.
+
+```bash
+rake gdal:bounding[/path/to/file.shp]
+```
+
+Or, alternatively, you can use a SdrFriend task for finding all Shapefiles, recursively, existing within a directory, and have the output printed out for all of them:
+
+```bash
+rake gdal:bounding_many[/path/to/shapefile_directory]
+```
+
+Once the values are generated, you can copy them and paste them back into the CSV or Google Sheet you have been using to make the GeoBlacklight metadata.
+
+### c. Caching tile layers to allow for easier page loading
+
+### d. Removing .DS_Store files
 
 - Link to FDA API documentation, which is now _________.
 
