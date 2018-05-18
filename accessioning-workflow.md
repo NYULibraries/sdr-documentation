@@ -298,6 +298,7 @@ ssh -i /Users/staff/Documents/SDR_Credentials/key-1-jun24-2015.pem ubuntu@metada
 After running the command, you may get a message to update the permissions of the key file. In order to do this, run [this one-time command](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)(it's step number 3):
 
 
+![Transmit view of vector-processing-script ](./images/transmit-metadata.geo.nyu.edu.png)
 
 
 #### Using the `vector-processing-script` tool for actual collection additions
