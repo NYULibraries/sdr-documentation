@@ -308,7 +308,7 @@ You should only have to run this one time. Next, you open Transmit, tab over to 
 
 Once you are connected to the `metadata.geo.nyu.edu server`, use Terminal to navigate to the vector-processing directory and then use the `input_shp_to_WGS84` folder. Simply find the files from the bitstream package construction step (see step 4 above), but make sure the files are unzipped, and then drag and dump the folders with the files in them into the aforementioned `input_shp_to_WGS84` folder (see image below).
 
-![Transmit view of vector-processing-script ] (./images/transmit-metadata.geo.nyu.edu.png)
+![Transmit view of vector-processing-script ] (https://github.com/sgbalogh/sdr-documentation/blob/master/images/transmit-metadata.geo.nyu.edu.png?raw=true)
 
 You'll need to make sure that there's no data in the folder already. If there is, use the `clean` command to remove them all first.
 
