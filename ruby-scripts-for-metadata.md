@@ -1,4 +1,6 @@
-Sample Script for Spitting Records for NYU
+# Library of Sample Scripts for SDR Metadata Management
+
+## Splitting a single JSON file into many individual JSON records
 ```
 ## Use this script to take a single .JSON file that has many individual JSON records, split them into single files that are nested within the file-folder structure that NYU uses for OpenGeoMetadata.
 
@@ -36,5 +38,23 @@ parsed_nyu.each do |record|
     f.write(JSON.pretty_generate(record))
   end
 
+end
+```
+## Deleting a key from all metadata records in a repository
+
+```bash
+## This script can be used to delete a single key from a JSON file if it's not needed (e.g. nyu_addl_format_sm) for items that need to go back into OpenGeoMetadata
+
+require 'json'
+
+collection = JSON.parse(File.read("/Users/staff/Downloads/GlobalMap_singlefile.json"))
+
+
+collection.each do |record|
+  record.delete("nyu_addl_format_sm")
+end
+
+File.open("/Users/staff/Downloads/GlobalMap_singlefile.json", "w") do |f|
+  f.write(JSON.pretty_generate(collection))
 end
 ```
