@@ -21,11 +21,13 @@ find . -name "*.shp"
 find . -name "*.shp" > ~/Desktop/east_view_files.txt
 # this saves the result to a text file, which makes it easy to see how many shapefiles exist
 ```
-The above process is just one way to determine how many layers exist in a collection. You could also count these manually, or view the list of files in Finder, select them all, then hit ``command+c`` and then paste the result into a spreadsheet.
+The above process is just one way to determine how many layers exist in a collection. You could also count these manually, or view the list of files in Finder, select them all, then hit ``command+c`` and then paste the result into a spreadsheet. Obviously, the kind of file you're collecting matters, so you should adjust accordingly.
 
 ## 2a. Creating Repository Records / "Minting Handles"
 
-Once the number of items in a given collection is determined, the next step is to "mint" the requisite number of IDs from the FDA. SDR assets span two different collections on the FDA, both located within the [Division of Libraries]("https://archive.nyu.edu/handle/2451/14821") community. They are:
+Once the number of items in a given collection is determined, the next step is to "mint" the requisite number of IDs from the FDA. Note that all collection additions should follow this minting process from the start. **Do not create an item in the SDR using the DSpace interface.** Instead, even if you are only creating one item, still follow this process.
+
+SDR assets span two different collections on the FDA, both located within the [Division of Libraries]("https://archive.nyu.edu/handle/2451/14821") community. They are:
  - [Spatial Data Repository]("https://archive.nyu.edu/handle/2451/33902") `dspace id: 651`
   -- By default, all items in this collection are public and world-accessible; accordingly, only open-data or non-licensed datasets should go here
  - [Spatial Data Repository (Private)]("https://archive.nyu.edu/handle/2451/33903") `dspace id: 652`
@@ -43,33 +45,28 @@ bundle exec rake fda:mint[private,100,"/Users/sgb334/Desktop/new_handles.csv"]
 # Second part: How many IDs do you want? (in this case 100)
 # Third part: The path to where you want the new file to be saved and your name for it (in this case new_handles.csv)
 ```
-If the above command is successful and no errors were thrown, you should have saved a CSV text file in the format  "*handle*,*dspace-internal-id*". The recommended approach to updating the lookup table is to open this new file with Atom, copy the handles and DSpace ids, and then paste them into your locally held, checked out version of the `/misc/handle-dspace-lookup.csv` file on your hard drive (see instructions on this in the comments below).
+If the above command is successful and no errors were thrown, you should have saved a CSV text file in the format  "*handle*,*dspace-internal-id*". You will need this file to update the `edu.nyu` lookup table, so make sure you save it. Note that you can also copy the output of the file as it appears in terminal, which you will paste in the `handle-dspace-lookup.csv` file that you will soon pull from GitHub (if you haven't already).
 
 *Additional note: for each of these commands, spacing and capitalization matters, so it's easiest to copy them directly from this documentation. Another good tip is to always drag the file needed to run a command into Terminal directly, as it will print out the correct file-folder path*
 
-## 2b. Updating the Handle table
+## 2b. Updating the Handle lookup table
 
 The FDA (confusingly) uses two types of IDs to refer to records: an internal id (referred to as "dspace_id" in this document), and a Handle identifier. If only these were the same!
 
 The Handles are great for public consumption, but unfortunately the REST API for the Faculty Digital Archive (i.e., the way in which programmed tools interact with the repository) requires the internal dspace_id, and there's no simple way to turn one into another. As a work around, we manage our own lookup table, stored in the [edu.nyu repository]("https://github.com/OpenGeoMetadata/edu.nyu/blob/master/misc/handle-dspace-lookup.csv") on GitHub.
 
-**Make sure to update this table whenever you pre-allocate / "mint" new FDA records.**
+**Make sure to update this table whenever you pre-allocate / "mint" new FDA records. Disassociating the dspace_id from the Handle identifier causes problems down the line**
 
-One way to make updates to the lookup table is to set up git to commit to the edu.nyu metadata repository (see [these instructions on how to do it](https://help.github.com/articles/set-up-git/)). If you're already set up to commit to the edu.nyu repository, here's a simple way to do that:
+One way to make updates to the lookup table is to set up git to commit to the edu.nyu metadata repository (see [these instructions on how to do it](https://help.github.com/articles/set-up-git/)). If you're already set up to commit to the edu.nyu repository, here's a simple way to update the table:
 
 ```bash
 cd ~/git/edu.nyu
-git pull
 git checkout master
-
-## Now we can append the CSV file of new Handles to the end of the lookup table.
-## To do this, the easiest way is copy the direct output (file) of the handles and DSpace IDs as it appears in Terminal.
-## Then, go to the lookup table folder within the misc folder in the edu.nyu repository on your drive, open the .CSV with Atom, and paste the new handles in there. Make sure there are no extra lines at the end, and save it.
 ## Then, run this next command:
-
-cat ~/Desktop/new_handles.csv >> ./misc/handle-dspace-lookup.csv
-
-## Make sure that the above command reflects the actual name of the new .csv you created. After you run the command, nothing visible "happens" on the command line.
+git pull
+## this makes sure you have the most current version of the entire edu.nyu repository on your computer.
+## Once you've done this, copy the direct output (file) of the handles and DSpace IDs as it appears in Terminal, or copy the text of the .CSV that was generated from the fda:mint command above
+## Then, go to the lookup table folder within the misc folder in the edu.nyu repository on your drive, open the .CSV with Atom, and paste the new handles in there. Make sure there are no extra lines at the end, and save it.
 ## Inspect that everything worked by executing the following commands:
 
 git status
@@ -81,7 +78,7 @@ git add ./misc/handle-dspace-lookup.csv ## stage the changes in the file
 git commit -m "adds some new Handles for X collection"
 git push
 ```
-*Note: if any of the above looks confusing to you, there are a million other ways to update the table: you could try using the GitHub Desktop app, for instance. You could manually concatenate the two CSV documents using Excel (or even just a text editor like Atom).*
+*Note: if any of the above looks confusing to you, there are a million other ways to update the table; you could try using the GitHub Desktop app, for instance. You could manually concatenate the two CSV documents using Excel (or even just a text editor like Atom). Just make sure that the lookup table is completely in sync any time new handles are minted, or else SDRFriend won't work anymore*
 
 ## 3. Create GeoBlacklight OpenGeoMetadata
 
@@ -94,17 +91,17 @@ cd ~/git/SdrFriend
 bundle exec rake metadata:template[/Users/sgb334/Desktop/new_collection.csv]
 ## this stipulates the path where you want to save the file and the name of the file
 ```
-The first data you should add is the dspace_id and Handle attributes from the collection you pre-allocated. Go ahead and paste them into the CSV. Feel free to add in additional columns to the CSV document if it's convenient to do so (such as "original file names"), though **only the columns listed in the template** will persist after converting the CSV to actual GeoBlacklight records.
+The first data you should add is the dspace_id and Handle attributes from the collection you just pre-allocated. Go ahead and paste them into the CSV. Feel free to add in additional columns to the CSV document if it's convenient to do so (such as "original file names"), though **only the columns listed in the template** will persist after converting the CSV to actual GeoBlacklight records.
 
 Also, very important: **don't rename any of the existing template columns.**
 
 From here, do whatever you need to do to fill in the rest of the columns. In general, you are responsible for all of the metadata elements; the only ones which cannot be filled in at this time are the `ref:download-url` and `ref:documentation-url` fields, which are intended to point to FDA bitstreams. That workflow is described below. If you are using the Google Sheets template, the `layer_modified_dt` field should also automatically update as you work in the Sheet. If you have any questions about the rules or best practices for filling out metadata fields, refer to the [GeoBlacklight Schema](https://github.com/geoblacklight/geoblacklight/blob/master/schema/geoblacklight-schema.md). One of the most difficult fields to come up with is the `solr_geom`, so refer to the appendix of this document for an **SdrFriend** command to find the `solr_geom` of a given file.
 
-Every FDA/GeoBlacklight layer needs at least one download url (the main, `ref:download-url` value). If your layer comes with additional documentation or codebook material, you may also want to link directly to that in the GeoBlacklight record (via `ref:documentation-download`), and make use of GeoBlacklight's contextual rendering for it. Unfortunately, though, it isn't possible to predict what the bitstream URLs will be until you have already uploaded them to your empty FDA container records. Thus, we will need to move on once we have enough metadata to otherwise constitute minimal viable GeoBlacklight records. Later we will insert the correct download URLs before outputting the "OpenGeoMetadata-ready" version of the records.
+Every FDA/GeoBlacklight layer needs at least one download url (the main, `ref:download-url` value). If your layer comes with additional documentation or codebook material, you may also want to link directly to that in the GeoBlacklight record (via `ref:documentation-download`), and make use of GeoBlacklight's contextual rendering for it. Unfortunately, though, it isn't possible to predict what the bitstream URLs will be until you have already uploaded them to your empty FDA container records. Thus, we will need to move on once we have enough metadata to otherwise constitute minimal viable GeoBlacklight records. Later, we will insert the correct download URLs before outputting the "OpenGeoMetadata-ready" version of the records.
 
 ## 4. Create bitstreams packages and prepare them
 
-At this point, we now need prepare to upload our content to the digital repository (FDA). We've already pre-allocated as many records as we'll need. First, we need to assemble the bitstreams that we will be uploading. Although it isn't perfect, the best strategy is to create a "container" for our impending upload. To do this, run the following task from *SDRFriend*
+At this point, we now need prepare to upload our actual content to the digital repository (FDA). We've already pre-allocated as many records as we'll need. First, we need to assemble the bitstreams that we will be uploading. Although it isn't perfect, the best strategy is to create a "container" for our impending upload. To do this, run the following task in *SDRFriend*
 
 ```bash
 bundle exec rake files:download_containers[/Users/andrewbattista/Desktop/containers_for_collection,Users/andrewbattista/Downloads/UAE_collection_metadata.csv]
@@ -142,7 +139,7 @@ The same can be said for the codebook or documentation folder that corresponds w
 ```
 *Above: a sample directory structure for the documentation folder. Note that it could be good practice to put standard metadata files in both the primary download folder and the documentation folder*
 
-There are a litany of ways of outputting files that make it more or less easy to place them within the appropriate folder and file structure. Some of these may involve homegrown scripts, but in either case, even if you're dragging files into a pre-fabricated list of folders, you're coming out ahead. And the containers will help you to stay organized. **Suggested advice: this step can take a lot of time, so when you're done, you may want to preserve the folders and files in a safe place, because you will need them later to convert the shapefiles to SQL files**
+There are a litany of ways of outputting files that make it more or less easy to place them within the appropriate folder and file structure. Some of these may involve homegrown scripts, but in either case, even if you're dragging files into a pre-fabricated list of folders, you're coming out ahead. And the containers will help you to stay organized. **Suggested advice: the step of organizing your files can take a lot of time, so when you're done, you may want to preserve the folders and files you've organized in a safe place, because you will need them later to convert the shapefiles to SQL files. For example, make a copy of the files and folder with the data in it and put it somewhere else or drag it into the cloud just in case**
 
 After all of the files are in place in the appropriate folder, the final part of this process is to run an **SdrFriend** command to zip individual files up into an archive named after the containing folder:
 
@@ -162,24 +159,22 @@ At this point, each folder structure should now look like this:
 - nyu_2451_12347/
   -nyu_2451_12347.zip
 ```
-After the zips have been created successfully, you might want to open a few of them and spot check the files to make sure they are all there and are all created accurately. It may be the case that you are collecting data that's already zipped up; if so, this last command is not necessary.
+After the zips have been created successfully, you might want to open a few of them and spot check the files to make sure they are all there and are all created accurately. Again, leave the new data you've just zipped up alone and make a copy of it to inspect. If everything looks good, you can move on to the next step of uploading basic metadata to the FDA.
 
 ## 5. Upload basic descriptive metadata to FDA
 
-Before all of the primary data bitstreams and documentation bitstreams have been uploaded to the FDA, we need to push our agreed-upon rudimentary descriptive metadata to the FDA. In order to do this, we will use the **SdrFriend** GeoBlacklight-to-FDA metadata command:
+Before all of the primary data bitstreams and documentation bitstreams are uploaded to the FDA, it is a good idea to push our agreed-upon rudimentary descriptive metadata to the FDA. In order to do this, we will use the **SdrFriend** GeoBlacklight-to-FDA metadata command:
 
 ```bash
 bundle exec rake fda:gbl_to_fda_metadata[/Users/andrewbattista/Downloads/UAE_metadata_final.csv]
 
 ## Here, the CSV input should be the .CSV file where your partially completed metadata records exist. You should just use the same CSV file you have been working on and downloaded earlier, provided all items have finalized titles and descriptions (at least).
 ```
-Once you run this command, check out a few items in the FDA to see if the titles and descriptions loaded correctly. The upside of doing this step now is that it makes it easier to check on the accuracy of bitstreams once we upload them (since you'll be able to see the names of the items in the FDA).
+Once you run this command, check out a few items in the FDA to see if the titles and descriptions loaded correctly. The upside of doing this step now is that it makes it easier to check on the accuracy of bitstreams once we upload them (since you'll be able to see the names of the items in the FDA). Note that you should *never* edit metadata directly in the FDA, even if you catch a typo or something. All metadata edits should be reflected in the canonical metadata copy in OpenGeoMetadata, which means for now that you should make the edit(s) you need in the Google Sheet. Periodically, we will use the `fda:gbl_to_fda_metadata` command to make sure the FDA basic metadata is in sync with what appears in GeoBlacklight.
 
 ## 6a. Upload bitstreams to FDA
 
-Now that the basic metadata is in place in the FDA, we need to actually upload the various primary data & codebook bitstreams (when applicable) to their respective FDA records.
-
-We can do this either one bitstream at a time, or in batch:
+Now that the basic metadata is in place in the FDA, we need to actually upload the various primary data & codebook bitstreams (when applicable) to their respective FDA records. We can do this either one bitstream at a time, or in batch:
 
 ```bash
 bundle exec rake fda:addbit[/Users/sgb334/Desktop/nyu_2451_12345.zip]
@@ -187,13 +182,14 @@ bundle exec rake fda:addbit[/Users/sgb334/Desktop/nyu_2451_12345.zip]
 ## This command adds a single bitstream to a single record
 ```
 
-The command above will upload the referenced bitstream to the appropriate FDA record (i.e., the record at http://hdl.handle.net/2451/12345). This will only work, however, if the bitstream follows the naming convention, and if the Handle lookup table has an entry corresponding to this Handle. Otherwise, we would need to specify exactly where we want to upload the bitstream to, by referencing that record's internal dspace_id:
+The command above will upload the referenced bitstream to the appropriate FDA record (i.e., the record at http://hdl.handle.net/2451/12345). This will only work, however, if the bitstream follows the naming convention, and if the Handle lookup table has an entry corresponding to this Handle. Otherwise, we would need to specify exactly where we want to upload the bitstream to by referencing that record's internal dspace_id:
 
 ```bash
 bundle exec rake fda:addbit[/Users/sgb334/Desktop/my_file.zip,53423]
+## The number after the file is the dspace_id of the item you're uploading to
 ```
 
-Alternatively, if we are uploading a large number of files that are all stored in the same directory, we can use **SdrFriend** to batch upload all of them. For this to work, we **must** have files that follow the naming convention detailed in section 4.
+Alternatively, if we are uploading a large number of files that are all stored in the same directory, we can use **SdrFriend** to batch upload them. For this to work, we **must** have files that follow the naming convention detailed in section 4.
 
 ```bash
 bundle exec rake fda:bit_batch[/Users/sgb334/Desktop/containers_for_collection,zip_only]
@@ -205,15 +201,17 @@ Running this command requires some monitoring. The bitstream uploads may trip up
 ## 6b. Retrieve the bitstream URLs to plug into our metadata records
 
 Now that we have uploaded all of the bitstreams to the FDA successfully, we can use **SdrFriend** to retrieve the existing bitstream download URLs, which are important elements for GeoBlacklight metadata. In order to do this, run the following command:
+
 ```bash
 bundle exec rake metadata:bithydrate[/Users/andrewbattista/Downloads/UAE_metadata_final.csv,/Users/andrewbattista/Downloads/UAE_collection_bitstreams.csv]
 # The first part should be a .CSV file that you have. Given the logic of the workflow, it will likely be the same .CSV that you've been using throughout this process to create FDA metadata, GeoBlacklight metadata, etc. The second part of this command generates a new CSV (here you tell it where you want the new file to be)
 ```
-After running the command, open up the newly created bitstreams CSV with Atom or Excel, copy the bitstream URLs, and stick them back into the main metadata CSV template in Google Sheets that you have been working on. Now that you have done this, you have all of the required elements for finalized GeoBlacklight metadata (assuming that you have also taken care of the Solr bounding boxes).
+
+After running the command, open up the newly created bitstreams CSV with Atom or Excel, copy the bitstream URLs, and stick them back into the main metadata CSV template in Google Sheets that you have been working on. Now that you have done this, you have all of the required elements for finalized GeoBlacklight metadata (assuming that you have also taken care of the Solr bounding boxes; if you haven't gotten the bounding boxes yet, now is a good time to do it).
 
 ## 7. Finalize GeoBlacklight Metadata Records and export them as .JSON
 
-Now that you have a completely filled out CSV, use **SdrFriend** to transform it into a single JSON file. First, download or save the file you're working on as a CSV. Then, run the following command:
+Now that you have a completely filled out CSV, use **SdrFriend** to transform it into a single JSON file. First, download or save the file you're working on as a CSV (again, remembering to not have numbers or spaces in the filename). Then, run the following command:
 
 ```bash
 bundle exec rake metadata:csv_to_json[/Users/sgb334/Downloads/eastview_files.csv,/Users/sgb334/Downloads/eastview_files_singlefile.json]
@@ -260,7 +258,7 @@ parsed_nyu.each do |record|
 
 end
 ```
-At this time, **SdrFriend** does not have a native split function, but this may be developed for NYU's convention only; other repositories will have to be managed with an individual script. For now, this script will work to produce individual JSON files that adhere to NYU's file-folder naming convention. Once these folders and files are created, you're ready to move on to step 10, committing these finalized records to the OpenGeoMetadata repository (see below).
+At this time, **SdrFriend** does not have a native split function, but this may be developed for NYU's convention only; other institutions' repositories will have to be managed with an individual script. For now, this script will work to produce individual JSON files that adhere to NYU's file-folder naming convention. Once these folders and files are created, you're ready to move on to step 10, committing these finalized records to the OpenGeoMetadata repository (see below).
 
 ## 8a. Create SQL versions of datasets and upload to PostGIS
 
@@ -289,11 +287,13 @@ brew install postgresql ## psql
 brew install gdal ## ogr2ogr
 brew install postgis ## shp2pgsql
 ```
-Another "meta step" is to create a "favorite" in your [Transmit FTP client](https://transmit.en.softonic.com/mac) so you can easily connect to the `metadata.geo.nyu.edu` server. First, you will need to SSH into the metadata server. Here is the command:
+Another "meta step" is to create a "favorite" in your [Transmit FTP client](https://transmit.en.softonic.com/mac) so you can easily connect to the `metadata.geo.nyu.edu` server. It is recommended that you buy a copy of Transmit if you're going to work with this step of the collection process frequently.
+
+First, you will need to SSH into the metadata server. Here is the command to do that:
 
 ```bash
 ssh -i /Users/staff/Documents/SDR_Credentials/key-1-jun24-2015.pem ubuntu@metadata.geo.nyu.edu
-## The full path is the location on your hard drive where the permissions file is and then the username@the-server
+## The full path is the location on your hard drive where the permissions file is which is then followed by the username@the-server, in this case ubuntu@metadata.geo.nyu.edu
 ```
 
 After running the command, you may get a message to update the permissions of the key file. In order to do this, run [this one-time command](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)(it's step number 3):
@@ -302,11 +302,11 @@ After running the command, you may get a message to update the permissions of th
 chmod 400 /Users/staff/Documents/SDR_Credentials/key-1-jun24-2015.pem
 ```
 
-You should only have to run this one time. Next, you open Transmit, tab over to "Favorites," and click the plus at the bottom to add a new favorite. You will need the username, which is `ubuntu`, and the password, which you can find via NYU's internal documents. Actually download the .pem file onto your hard drive, as per the above command would suggest.
+You should only have to run this one time. Next, you open Transmit, tab over to "Favorites," and click the plus at the bottom to add a new favorite. You will need the username, which is `ubuntu`, and the password, which you can find via NYU's internal documents. Actually download the .pem file onto your hard drive, as per the above command would suggest, and then connect it when you log in.
 
-#### Preparing the files for transformation within Transmit####
+#### Actually preparing the files for transformation within Transmit
 
-It's likely that you have saved the container folders that you produced in step 4 above, but you may only have the zipped up bitstreams left. If that's the case, you'll need to run the following script to "unzip" the bitstreams:
+It's likely that you have saved the container folders that you produced in step 4 above, but you may only have the zipped up bitstreams left. If that's the case, you'll need to run the following script to "unzip" the bitstreams but leave them in their containing folders:
 
 ```bash
 require 'find'
@@ -325,34 +325,41 @@ zip_paths.each do |zp|
 end
 ```
 
-After running this script, you have the files you need to do the conversion into SQL.
+After running this script, you have the files you need for the conversion into SQL. If you never did zip up the files, or you've preserved the unzipped shapefiles, you won't need to do the above script. Instead, you can move on and SSH into the `metadata.geo.nyu.edu` server if you haven't already:
 
+```bash
+ssh -i /Users/staff/Documents/SDR_Credentials/key-1-jun24-2015.pem ubuntu@metadata.geo.nyu.edu
+## The full path is the location on your hard drive where the permissions file is which is then followed by the username@the-server, in this case ubuntu@metadata.geo.nyu.edu
+```
 
-Once you are connected to the `metadata.geo.nyu.edu server`, use Terminal to navigate to the vector-processing directory and then use the `input_shp_to_WGS84` folder. Simply find the files from the bitstream package construction step (see step 4 above), but make sure the files are unzipped, and then drag and dump the folders with the files in them into the aforementioned `input_shp_to_WGS84` folder (see image below).
+Once you are connected to the `metadata.geo.nyu.edu server`, use Terminal to navigate to the vector-processing directory. The first thing you'll want to do is run the cleanup command to remove any existing files that might be occupying the folders already. Remember that to navigate around in Terminal hit `ls` to list the sub-folders in the directory and then `cd` to enter the folder you want. To run the cleanup command, enter the following:
 
-![Transmit view of vector-processing-script ] (https://github.com/sgbalogh/sdr-documentation/blob/master/images/transmit-metadata.geo.nyu.edu.png?raw=true)
+```bash
+bash cleanup.sh
+```
 
-You'll need to make sure that there's no data in the folder already. If there is, use the `clean` command to remove them all first.
+Check inside the folders in Terminal to make sure that all of the files are cleaned out. After the files are cleaned out, you can now place your original, unprojected files into the folders so that the vector processing script will work. Simply take the original shapefiles and place them into the `input_shp_to_WGS84` folder.  Find the files from the bitstream package construction step (see step 4 above), make sure the files are unzipped elements that are inside of a folder that has the naming convention spelled out in step 4 and then drag and dump the folders with the files in them into the aforementioned `input_shp_to_WGS84` folder (see image below). Doing this is part one of the process (re-projecting original files into WGS84).
+
+![Transmit view of vector-processing-script ](./images/transmit-metadata.geo.nyu.edu.png)
+
+#### Run the `vector-processing-script/processing.sh` script to convert files
+
+Now that the files are in place in Transmit, we are ready to run the conversion script. To run it, enter the following command in Terminal.
+
+```bash
+cd vector-processing-script
+bash processing_May16_revise.sh
+## This command reflects the most recently created version of the script.
+
+```
+
+After entering that command, script should then run via an interactive menu that has a heading saying **NYU SDR Processing Script** Simply follow its prompts.
+
+After you have created new SQL files,
 
 #### Using the `vector-processing-script` tool for actual data conversion
 
 Now you're ready to actually convert the files into SQL tables. If you're reading this documentation, you should also have access to a script located in a [repository called `vector-processing-script`](https://github.com/sgbalogh/sdr-vector-processing). This script provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
-
-
-#### Run `vector-processing-script/processing.sh`
-
-The script implements workflows for the following conversions:
-
-- SHP => reprojected SHP in `EPSG:4326`
-- `EPSG:4326` SHP => SQL
-- SQL => PostGIS insert statement
-
-```bash
-cd vector-processing-script
-bash processing.sh
-```
-
-The script should then run via an interactive menu.
 
 #### Examples of main commands
 
@@ -397,7 +404,7 @@ nyu_2451_34189.tif
 
 ##  9. Enable layers on GeoServer
 
-GeoServer can be interacted with through a web-interface, or a REST HTTP API. We will document both methods below, but it is recommended to update or "turn on" layers in batch using the REST API. First, though, it helps to understand the architecture of NYU's GeoServers.
+GeoServer can be interacted with through a web-interface, or a REST HTTP API. We will document both methods, but it is recommended to update or "turn on" layers in batch using the REST API. First, though, it helps to understand the architecture of NYU's GeoServers.
 
 #### Fundamental layout of NYU's GeoServer implementation
 
@@ -418,7 +425,7 @@ Each GeoServer instance has access to map data in two ways:
 
 #### Enabling layers via web interface
 
-If you are only intending to publish one or two layers at a time, it might be a good idea to log on to the web interface for the appropriate GeoServer and do it manually. to do this, go to the [Maps-Public] (http://maps-public.geo.nyu.edu) interface, click layer previews, and log in (the username and password are held internally).
+If you are only intending to publish one or two layers at a time, it might be a good idea to log on to the web interface for the appropriate GeoServer and do it manually. to do this, go to the [Maps-Public] (http://maps-public.geo.nyu.edu) interface, click layer previews, and log in (the username and password are held internally). Further instructions TBA
 
 #### Via API
 
@@ -432,9 +439,9 @@ Once this command happens the layers will be "activated" in the appropriate inst
 
 ## 10. Commit records to the OpenGeoMetadata repository
 
-Now we return to the metadata. Once you have finalized your metadata records (see step 7), the next step is to commit them to the [`edu.nyu` repository](https://github.com/OpenGeoMetadata/edu.nyu). First, take the newly created folders and files from step 7 and create a new update branch on the edu.nyu master repository. The best practice is then to commit your changes to that new collection branch, then issue a pull request from that branch into the master branch.
+Now we return to the metadata. Once you have finalized your metadata records (see step 7), the next step is to commit them to the [`edu.nyu` repository](https://github.com/OpenGeoMetadata/edu.nyu). You can do this as soon as you finish step 7 and place it here, or you can wait until you have finished steps 8-9. It doesn't matter. First, take the newly created folders and files from step 7 and create a new update branch on the `edu.nyu` master repository. The best practice is to commit your changes to that new collection branch, then issue a pull request from that branch into the master branch.
 
-There are two ways to do this: via Git commands or via the GitHub desktop software. Here's the sample workflow with Git:
+There are two ways to create a new branch and submit it as a pull request: via Git commands or via the GitHub desktop software. Here's the sample workflow with Git:
 
 ```bash
 cd ~/git/edu.nyu
@@ -448,7 +455,7 @@ git checkout -b my_new_collection
 ## -b creates a new branch called 'my_new_collection'
 ```
 
-At this point, add all of the new records to the `~/git/edu.nyu` directory. You can simply drag them in. Once the new files are in place, commit and push to GitHub with the sequence below:
+At this point, add all of the new records to the `~/git/edu.nyu` directory. You can simply drag the folders in. Once the new files are in place, commit and push to GitHub with the sequence below:
 
 ```bash
 git status
@@ -465,28 +472,137 @@ git commit -m "Adds records for whatever collection"
 git push --set-upstream origin my_new_collection
 ```
 
-Now the new records have been posted to Github. If you go to the [main page for the repository](https://github.com/OpenGeoMetadata/edu.nyu), you should be able to see that a new branch (`my_new_collection`) was just pushed. Take a look at the branch, and if everything seems good, issue a pull request and assign another member of the geo team to review it. **It's typically considered poor form to approve your own pull request, so assign it to another member of the geo team** If you have been assigned to review, the things you should look for include: making sure the file-folder convention match the identifier for the record, making sure no needless blank elements exist, making sure all elements are filled out correctly, etc. If all is good, you can both approve the pull request and merge into the master branch:
+Now the new records have been posted to Github. If you go to the [main page for the repository](https://github.com/OpenGeoMetadata/edu.nyu), you should be able to see that a new branch (`my_new_collection`) was just pushed. Take a look at the branch, and if everything seems good, issue a pull request and assign another member of the geo team to review it. **It's typically considered poor form to approve your own pull request, so assign it to another member of the geo team to review** If you have been assigned to review, the things you should look for include: making sure the file-folder convention match the identifier for the record, making sure no needless blank elements exist, making sure all elements are filled out correctly, etc. If all is good, you can both approve the pull request and merge into the master branch with the command below:
 
 ```bash
 git checkout master
 git pull
 ```
 
-After that pull request is approved and merged into the Master branch, make sure to delete the `my_new_collection` branch on Github, since it is no longer needed, and then delete it on your local machine.
+You can also review and confirm the merge on the GitHub web interface. After that pull request is approved and merged into the Master branch, make sure to delete the `my_new_collection` branch on Github, since it is no longer needed, and then delete it on your local machine.
 
-The final part of this process is doing one more check to ensure that all of the records are GeoBlacklight compliant. A Travis continuous integration (CI) script on GitHub should kick off for any commit to the repository. It will attempt to validate every record (using [GeoCombine](https://github.com/OpenGeoMetadata/GeoCombine)), and log the results. If there are any errors, you can come up with a strategy for fixing them.
+The final part of this process is doing one more check to ensure that all of the records are GeoBlacklight compliant. A Travis continuous integration (CI) script on GitHub should kick off for any commit to the repository. It will attempt to validate every record (using [GeoCombine](https://github.com/OpenGeoMetadata/GeoCombine)), and log the results. Note that the build typically takes a few minutes to complete. If there are any errors, you can come up with a strategy for fixing them.
 
-You can also use the GitHub desktop software to accomplish this same process. In order to do that, first clone the entire `edu.nyu` repository to your hard drive, then drag in new the new metadata files you have created. If you haven't done so already, add the repository to your application by clicking the plus button at the top left. Immediately, you will see differences of the changed files. Next, create a new branch, and name it according to the collection. Finally, commit that branch to the master and then navigate to the web interface to issue the pull request.
+You can also use the GitHub desktop software to accomplish this same process. In order to do that, first clone the entire `edu.nyu` repository to your hard drive, then drag in new the new metadata files you have created. If you haven't done so already, add the repository to your application by clicking the plus button at the top left. Immediately, you will see differences of the changed files that have been added or edited. Next, create a new branch, and name it according to the collection. Finally, commit that branch to the master and then navigate to the web interface to issue the pull request.
 
 ## 11. Index newly updated metadata records into Solr
 
-Now that the new metadata records are a part of the master branch of the `edu.nyu` repository, we are ready to index them into Solr. The first thing to do is index them into a development instance of Solr and GeoBlacklight to make sure that all of the records look okay and don't cause any errors.
+Now that the new metadata records are a part of the master branch of the `edu.nyu` repository, we are ready to index them into Solr. The first thing to do is index them into a development instance of Solr and GeoBlacklight to make sure that all of the records look okay and don't cause any errors. If you haven't done this before, you'd first need to make a clone of the NYU production GeoBlacklight on your computer. The repository is located [here](https://github.com/NYULibraries/spatial_data_repository). We will need to put in the .yml file that contains the secret passwords. That is kept in the credentials box drive and is called `geoblacklight.yml`. Copy that file, drag it into spatial_data_repository/config, and then rename it to `vars.yml`
 
-We will use GeoCombine to index the records.
+The other prefatory step you need to take is to set up Solr and the GeoBlacklight Solr core in the dev version on the local hard drive. To install Solr:
 
-More instructions TBA
+```bash
+brew install solr
+```
+Once it's installed successfully, go to Terminal and type
 
-That's it! The collection workflow is complete.
+```bash
+
+solr start
+
+## solr stop stops Solr and solr status lets you know if it's running and solr restart restarts
+```
+
+Now, go to [this address](http://localhost:8983/solr/). Once you get there, you've arrived at the web interface of Solr. Now you need to make sure there is valid GeoBlacklight core. To do this, download the GeoBlacklight core zip that is in the NYU box drive. Then go to your local install of Solr, specifically this directory `/usr/local/Cellar/solr/7.3.1/server/solr` and put the unzipped core into it. Your path might be slightly different depending on which computer yout are using. Now you need to re-start solr.
+
+Now, go back to the solr link in your browser, go to the main console and make sure you see a Blacklight core on the core selector pulldown menu. Select it to activate it.
+
+Now we can start up the development version of Solr (right now this is on Andrew's laptop and is the place to do a visual checks of new records). First, type `bundle` to make sure all prerequisites are installed. Then, To start it up:
+
+```bash
+bundle exec rails s -b 0.0.0.0
+```
+Now the instance is started. Leave the window open. And go to http://localhost:3000. You're now there.
+
+Now we will index the new GeoBlacklight records into our development Solr core. To do this, clone the most current version of the `edu.nyu` metadata repository on your machine and then place it in the `GBL-metadata-development` folder. This places any newly created GeoBlacklight records into the `GBL-metadata-development` folder on your local computer. Then, Use this following script
+
+```ruby
+
+require 'rsolr'
+require 'uri'
+require 'find'
+require 'json'
+
+DEV_MD_DIR = '/Users/andrewbattista/Documents/GBL-metadata-development'
+
+## make sure this path corresponds to where your staging area is.
+
+## Find all `geoblacklight.json` records
+gbl = Find.find(DEV_MD_DIR).select{ |x| File.basename(x) == 'geoblacklight.json'}
+
+puts "Found #{gbl.count} records in: #{DEV_MD_DIR}"
+
+filtered_records = [] ## A place to store them
+
+gbl.each do |path|
+  record = JSON.parse(File.read(path)) ## Read and parse the record
+  if (record['dct_provenance_s'] == 'NYU') || (record['dc_rights_s'] == 'Public') ## See if we want it; you can change the variables depending on how you want to filter
+    filtered_records << record
+  end
+end
+
+## Create a connection object
+solr = RSolr.connect :url => "http://127.0.0.1:8983/solr/blacklight-core"
+
+## this Solr URL points to the local instance of Solr
+
+## Optionally, confirm that you are connected
+results = solr.get 'select', :params => {:q => '*:*'}
+puts results
+
+filtered_records.each_slice(100) do |slice|
+  solr.add slice
+  solr.commit
+  puts '100 records have been indexed'
+end
+
+```
+
+The script indexes new records and when it's done, go back to your web version of the development GeoBlacklight and hit refresh. You should be able to see the new records and verify that they work. If all looks good and there are no damning errors, you're ready to index into production. Make sure you click on as many elements of records as you can. Try doing spatial searching, making faceted searches, etc. Once you're ready to go live, use this slightly modified script:
+
+```ruby
+
+require 'rsolr'
+require 'uri'
+require 'find'
+require 'json'
+
+PROD_MD_DIR = '/Users/andrewbattista/Documents/GBL-metadata-development'
+
+## make sure this path corresponds to where your staging area is.
+
+## Find all `geoblacklight.json` records
+gbl = Find.find(PROD_MD_DIR).select{ |x| File.basename(x) == 'geoblacklight.json'}
+
+puts "Found #{gbl.count} records in: #{PROD_MD_DIR}"
+
+filtered_records = [] ## A place to store them
+
+gbl.each do |path|
+  record = JSON.parse(File.read(path)) ## Read and parse the record
+  if (record['dct_provenance_s'] == 'NYU') || (record['dc_rights_s'] == 'Public') ## See if we want it; you can change the variables depending on how you want to filter
+    filtered_records << record
+  end
+end
+
+## Create a connection object
+solr = RSolr.connect :url => "http://127.0.0.1:8983/solr/blacklight-core"
+
+## this Solr URL points to version where the live production instance is. NEEDS TO BE UPDATED
+
+## Optionally, confirm that you are connected
+results = solr.get 'select', :params => {:q => '*:*'}
+puts results
+
+filtered_records.each_slice(100) do |slice|
+  solr.add slice
+  solr.commit
+  puts '100 records have been indexed'
+end
+
+```
+
+That's it! The collection workflow is complete and the records are live in GeoBlacklight, preserved within NYU Libraries, and available to the NYU community, thus fulfilling the first goal of the strategic plan.
 
 ## Appendix: Additional and optional steps to augment the workflow
 
@@ -518,7 +634,7 @@ Once the values are generated, you can copy them and paste them back into the CS
 
 ### e. Removing a single element from a batch of JSON records.
 
-Depending on the nature of the collection upload, you may want to delete a single key from a set of metadata records. Example scenarios could include getting rid of the `nyu_addl_format_sm` element if you're cleaning records from other institutions, getting rid of the `dc_creator_sm` key if none of the records in that batch have a creator, getting rid of a field that has been deprecated, etc. If this is what you want to do, you can use the following script:
+Depending on the nature of the collection upload, you may want to delete a single key from a set of metadata records. Example scenarios could include getting rid of the `nyu_addl_format_sm` element if you're cleaning records from other institutions (and using **SdrFriend** to do it), getting rid of the `dc_creator_sm` key if none of the records in that batch have a creator (for example), getting rid of a field that has been deprecated, etc. If this is what you want to do, you can use the following script:
 
 ```bash
 require 'json'
