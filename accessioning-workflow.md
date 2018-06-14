@@ -349,40 +349,17 @@ Now that the files are in place in Transmit, we are ready to run the conversion 
 ```bash
 cd vector-processing-script
 bash processing_May16_revise.sh
-## This command reflects the most recently created version of the script.
+## This command reflects a version of the script that assumes the files you are converting had attributes encoded in UTF-8, which may not always be the case. If in doubt, look at the difference between the May 16 version of the script and the orgiginal processing.sh script
 
 ```
 
 After entering that command, script should then run via an interactive menu that has a heading saying **NYU SDR Processing Script** Simply follow its prompts.
 
-After you have created new SQL files,
+After you have created new SQL files, they should be posted to the PostGIS database on their own. TBA - narrate the prompts better here.
 
-#### Using the `vector-processing-script` tool for actual data conversion
 
-Now you're ready to actually convert the files into SQL tables. If you're reading this documentation, you should also have access to a script located in a [repository called `vector-processing-script`](https://github.com/sgbalogh/sdr-vector-processing). This script provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
 
-#### Examples of main commands
 
-If the script isn't working properly, or if you'd prefer some additional control over the conversion-and-upload-to-PostGIS process, these are the main commands to consider:
-
-```bash
-## Reproject a Shapefile into EPSG:4326 (WGS84)
-ogr2ogr -t_srs EPSG:4326 -lco ENCODING=UTF-8 output.shp input.shp
-#ogr2ogr -t_srs EPSG:4326 -lco ENCODING=UTF-8 nyu_2451_12345_WGS84.shp NYCSchools.shp
-
-## Convert an EPSG:4326 Shapefile into SQL
-shp2pgsql -I -s 4326 input.shp input > output.sql
-#shp2pgsql -I -s 4326 nyu_2451_12345_WGS84.shp nyu_2451_12345 > nyu_2451_12345.sql
-
-## Upload the SQL file to PostGIS
-psql --host nyu-geospatial.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com \
-     --port 5432 \
-     --username sdr_admin \
-     --dbname geospatial_data \
-     -w -f output.sql
-```
-
-In order to run the last command, which connects to PostGIS and attempts to insert the contents of `output.sql` as a new table, you will also need to supply the password for the database (and make sure there are no firewall impediments to you connecting directly to the database). See the credentials documentation for more info.
 
 ## 8b. Upload raster images to GeoServer
 
@@ -514,7 +491,24 @@ bundle exec rails s -b 0.0.0.0
 ```
 Now the instance is started. Leave the window open. And go to http://localhost:3000. You're now there.
 
-Now we will index the new GeoBlacklight records into our development Solr core. To do this, clone the most current version of the `edu.nyu` metadata repository on your machine and then place it in the `GBL-metadata-development` folder. This places any newly created GeoBlacklight records into the `GBL-metadata-development` folder on your local computer. Then, Use this following script
+####If you have Solr installed already
+
+On a computer that already has Solr intalled, first start Solr:
+
+```bash
+solr start
+```
+
+Next, navigate to the Spatial Data Repository folder and start the Rails server. That could be something like:
+
+```bash
+cd ~/git/spatial_data_repository
+## this is the sample path. It could be different if you have it installed elsewhere
+bundle exec rails s -b 0.0.0.0
+```
+Now that the Rails server and Solr are running on your local machine, confirm that it's working correctly. Go to http://localhost:3000/ to check. If it all is working you'll see a GeoBlacklight. Also, make sure that the Terminal window you used to launch this stays open, or else the dev instance will shut down.
+
+ Now, we will index the new GeoBlacklight records into our development Solr core. To do this, clone the most current version of the `edu.nyu` metadata repository on your machine and then place it in the `GBL-metadata-development` folder. This places any newly created GeoBlacklight records into the `GBL-metadata-development` folder on your local computer. You may also want to place the new GeoBlacklight files that you have created into the `GBL-metadata-development` folder. Then, Use this following script:
 
 ```ruby
 
@@ -553,12 +547,28 @@ puts results
 filtered_records.each_slice(100) do |slice|
   solr.add slice
   solr.commit
-  puts '100 records have been indexed'
+  puts '100 records have been indexed into your development instance'
 end
 
 ```
 
-The script indexes new records and when it's done, go back to your web version of the development GeoBlacklight and hit refresh. You should be able to see the new records and verify that they work. If all looks good and there are no damning errors, you're ready to index into production. Make sure you click on as many elements of records as you can. Try doing spatial searching, making faceted searches, etc. Once you're ready to go live, use this slightly modified script:
+The script indexes new records and when it's done, go back to your web version of the development GeoBlacklight. You should be able to see the new records and verify that they work. Search for one of them. If all looks good and there are no damning errors, you're ready to index into production. Make sure you click on as many elements of records as you can. Try doing spatial searching, making faceted searches, etc. Once you're ready to go live, make sure that any new metadata items you're adding are part of the master branch of OpenGeoMetadata.
+
+Before running the index script, you need to SSH into the `metadata.geo.nyu.edu` server. To do this run:
+
+```bash
+ssh -i /Users/staff/Documents/SDR_Credentials/key-1-jun24-2015.pem ubuntu@metadata.geo.nyu.edu
+```
+
+Once you're in this server, make sure that the metadata folder in that server is up to date with the master branch of `edu.nyu` on OpenGeoMetadata. To do this, `git pull` the most recent version of the NYU repository in the OpenGeoMetadata server. To do this, go to the `edu.nyu` directory within the `metadata.geo.nyu.edu` server that we've SSHd into.
+
+Once you have all the most current metadata in place, use this slightly modified script. The text of the script is below, but you should only have to run this command:
+
+```bash
+ruby index-records.rb
+```
+
+For reference, the actual text of the scrip that's running is here:
 
 ```ruby
 
@@ -567,7 +577,17 @@ require 'uri'
 require 'find'
 require 'json'
 
-PROD_MD_DIR = '/Users/andrewbattista/Documents/GBL-metadata-development'
+PROD_MD_DIR = '/home/ubuntu/metadata/production'
+
+def add_nyu_fields(record)
+  if record['nyu_addl_format_sm'].nil?
+    mod = record.dup
+    mod['nyu_addl_format_sm'] = [ mod['dc_format_s'] ]
+    return mod
+  else
+    return record
+  end
+end
 
 ## make sure this path corresponds to where your staging area is.
 
@@ -581,28 +601,28 @@ filtered_records = [] ## A place to store them
 gbl.each do |path|
   record = JSON.parse(File.read(path)) ## Read and parse the record
   if (record['dct_provenance_s'] == 'NYU') || (record['dc_rights_s'] == 'Public') ## See if we want it; you can change the variables depending on how you want to filter
-    filtered_records << record
+    filtered_records << add_nyu_fields(record)
   end
 end
 
 ## Create a connection object
-solr = RSolr.connect :url => "http://127.0.0.1:8983/solr/blacklight-core"
+solr = RSolr.connect :url => "http://54.174.220.44:8983/solr/blacklight_core"
 
-## this Solr URL points to version where the live production instance is. NEEDS TO BE UPDATED
+## this Solr URL points to the local instance of Solr
 
 ## Optionally, confirm that you are connected
 results = solr.get 'select', :params => {:q => '*:*'}
 puts results
+puts '100 records have been indexed'
 
 filtered_records.each_slice(100) do |slice|
   solr.add slice
   solr.commit
-  puts '100 records have been indexed'
 end
 
 ```
 
-That's it! The collection workflow is complete and the records are live in GeoBlacklight, preserved within NYU Libraries, and available to the NYU community, thus fulfilling the first goal of the strategic plan.
+That's it! The collection workflow is complete and the records are live in GeoBlacklight, preserved within NYU Libraries, and available to the NYU community, as well as the metadata available to the larger GeoBlacklight community, thus fulfilling the first goal of the NYU Libraries Strategic Plan.
 
 ## Appendix: Additional and optional steps to augment the workflow
 
@@ -610,7 +630,7 @@ The process above is the essence of the collection workflow, but there are other
 
 ### a. Calculating bounding boxes for `solr_geom` field
 
-All GeoBlacklight records require a bounding box. There are a lot of ways to generate this data, but you will probably want to do that automatically if your collection has many kinds of shapefiles or GeoTIFFs that cover many different areas. GDAL is useful for this. **SdrFriend** provides a wrapper over GDAL, and a utility for generating `solr_geom` syntax bounding boxes, given a Shapefile. Note that the Shapefile should be in EPSG:4326 (WGS 84) CRS.
+All GeoBlacklight records require a bounding box. There are a lot of ways to generate this data, but you will probably want to do that automatically if your collection has many kinds of shapefiles or GeoTIFFs that cover many different areas. GDAL is useful for this. **SdrFriend** provides a wrapper over GDAL, and a utility for generating `solr_geom` syntax bounding boxes, given a Shapefile. Note that the Shapefile should be in EPSG:4326 (WGS84) CRS before running the command.
 
 ```bash
 rake gdal:bounding[/path/to/file.shp]
@@ -628,7 +648,16 @@ Once the values are generated, you can copy them and paste them back into the CS
 
 ### c. Removing .DS_Store files
 
+These files appear if you ever change the way finder displays things, and they can creep into your repository. Normally you can't see these files, but git is able to see them, and you have to delete them. The link that explains this is here.
+
 - [Removing .DS_Store files](https://jonbellah.com/articles/recursively-remove-ds-store)
+
+To delete these files before committing anything to a repository, run this command
+```
+find . -name '.DS_Store' -type f -delete.
+```
+
+The files should be deleted.
 
 ### d. Putting the elements within a batch of JSON records into alphabetical order
 
@@ -651,4 +680,34 @@ File.open("/Users/staff/Downloads/GlobalMap_singlefile.json", "w") do |f|
   f.write(JSON.pretty_generate(collection))
 end
 ```
-Note that in order for this script to work, your file should not have spaces or numbers in it.
+Note that in order for this script to work, your file should not have spaces or numbers in it. Otherwise you are good and we have created the collection.
+
+### f. Updating records from another institutions
+
+In order to update records from another instituion, enter the production folder of the `metadata.geo.nyu.edu` server, then enter the folder of the repository you want to update and then hit git pull. This updates the files and adds the NYU specific fields to our production instance. Then, re-run the `index-records.rb` script (see above). That's all you have to do.
+
+#### Using the `vector-processing-script` tool for actual data conversion
+
+Now you're ready to actually convert the files into SQL tables. If you're reading this documentation, you should also have access to a script located in a [repository called `vector-processing-script`](https://github.com/sgbalogh/sdr-vector-processing). This script provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
+
+#### Examples of main commands
+
+If the script isn't working properly, or if you'd prefer some additional control over the conversion-and-upload-to-PostGIS process, these are the main commands to consider:
+
+```bash
+## Reproject a Shapefile into EPSG:4326 (WGS84)
+ogr2ogr -t_srs EPSG:4326 -lco ENCODING=UTF-8 output.shp input.shp
+#ogr2ogr -t_srs EPSG:4326 -lco ENCODING=UTF-8 nyu_2451_12345_WGS84.shp NYCSchools.shp
+
+## Convert an EPSG:4326 Shapefile into SQL
+shp2pgsql -I -s 4326 input.shp input > output.sql
+#shp2pgsql -I -s 4326 nyu_2451_12345_WGS84.shp nyu_2451_12345 > nyu_2451_12345.sql
+
+## Upload the SQL file to PostGIS
+psql --host nyu-geospatial.cfh3iwfzn4xy.us-east-1.rds.amazonaws.com \
+     --port 5432 \
+     --username sdr_admin \
+     --dbname geospatial_data \
+     -w -f output.sql
+```
+If you are ever trying to connect to the SQL database from a different machine, you may run into restrictions. In order to run the last command, which connects to PostGIS and attempts to insert the contents of `output.sql` as a new table, you will also need to supply the password for the database (and make sure there are no firewall impediments to you connecting directly to the database). See the credentials documentation for more info.
