@@ -598,9 +598,9 @@ Note that in order for this script to work, your file should not have spaces or 
 
 ### e. Updating records from another institutions
 
-In order to update records from another instituion, enter the production folder of the `metadata.geo.nyu.edu` server, then enter the folder of the repository you want to update and then hit git pull. This updates the files and adds the NYU specific fields to our production instance. Then, re-run the `index-records.rb` script (see above). That's all you have to do.
+In order to update records from another institution, enter the production folder of the `metadata.geo.nyu.edu` server, then enter the folder of the repository you want to update and then hit git pull. This updates the files and adds the NYU specific fields to our production instance. Then, re-run the `index-records.rb` script (see above). That's all you have to do.
 
-#### f. Using the `vector-processing-script` tool for actual data conversion
+### f. Using the `vector-processing-script` tool for actual data conversion
 
 Now you're ready to actually convert the files into SQL tables. If you're reading this documentation, you should also have access to a script located in a [repository called `vector-processing-script`](https://github.com/sgbalogh/sdr-vector-processing). This script provides a simple command-line interface to some common data-processing steps. It is essentially just a wrapper on top of GDAL / OGR commands.
 

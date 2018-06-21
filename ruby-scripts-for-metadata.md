@@ -1,7 +1,8 @@
 # Library of Sample Scripts for SDR Metadata Management
 
 ## Splitting a single JSON file into many individual JSON records
-```
+ 
+```ruby
 ## Use this script to take a single .JSON file that has many individual JSON records, split them into single files that are nested within the file-folder structure that NYU uses for OpenGeoMetadata.
 
 require 'json'
@@ -61,7 +62,9 @@ end
 
 ## Indexing metadata records into production instance of Solr
 
-```ruby 
+```ruby
+
+## Use this script to index new GeoBlacklight records into production. Be sure to change the name of the variables when using this for development.
 require 'rsolr'
 require 'uri'
 require 'find'
