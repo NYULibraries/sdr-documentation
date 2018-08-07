@@ -60,6 +60,78 @@ File.open("/Users/staff/Downloads/GlobalMap_singlefile.json", "w") do |f|
 end
 ```
 
+## Appending one or more Subjects (or other elements) onto an existing batch of GeoBlacklight records
+
+```ruby
+## this script allows you to add one or more subjects to batches of existing GeoBlacklight records that meet a certain criteria.
+
+require 'find'
+require 'json'
+conf.echo = false ## This just disables print-outs of every return value
+
+PATH_TO_EDU_NYU = "/Users/staff/desktop/edu.nyu"
+
+record_paths = Find.find(PATH_TO_EDU_NYU).select{ |x| x.include? "geoblacklight.json" }
+
+record_paths.each_with_index do |path, idx|
+  record = JSON.parse(File.read(path))
+  ## At this point, all of the code below will be executed on every
+  ## single record path.
+
+  ## The variable `record` contains the parsed GeoBlacklight record.
+
+  if record['dct_isPartOf_sm'].include? "Soviet Military Topographic Maps" ## obviously change the condition here depending on which batch you want to alter
+    record['dc_subject_sm'].concat ["FIST_SUBJECT", "SECOND_SUBJECT"] ## obviously change the subjects inside to what you want.
+
+    ## We also now need to save the modified record:
+    File.open(path, "w") do |f|
+      f.write(JSON.pretty_generate(record))
+    end
+  end
+
+end
+```
+
+## Adding a key-value URL in the references field to one or more records
+
+```ruby
+## This script allows you to add a references URL key-value to an existing GeoBlacklight record or records based on a conditon.
+
+require 'find'
+require 'json'
+conf.echo = false ## This just disables print-outs of every return value
+
+PATH_TO_EDU_NYU = "/Users/staff/desktop/edu.nyu" ## obviously, change this path to match the location of the repository on your own computer
+
+record_paths = Find.find(PATH_TO_EDU_NYU).select{ |x| x.include? "geoblacklight.json" }
+
+record_paths.each_with_index do |path, idx|
+  record = JSON.parse(File.read(path))
+  ## At this point, all of the code below will be executed on every
+  ## single record path.
+
+  ## The variable `record` contains the parsed GeoBlacklight record.
+
+  if record['dct_isPartOf_sm'].include? "Soviet Military Topographic Maps"
+    ## First we need to parse the JSON object from the references string
+    references = JSON.parse(record['dct_references_s'])
+
+    ## Now we add (or replace) the codebook entry
+    references["http://lccn.loc.gov/sh85035852"] = "https://archive.nyu.edu/bitstream/2451/37402/2/nyu_2451_37402_doc.zip"
+
+    ## Finally, we "reverse" the first step, and save a JSON escaped version
+    ## of the references object into a string
+    record['dct_references_s'] = JSON.generate(references)
+
+    ## We also now need to save the modified record:
+    File.open(path, "w") do |f|
+      f.write(JSON.pretty_generate(record))
+    end
+  end
+
+end
+```
+
 ## Indexing metadata records into production instance of Solr
 
 ```ruby
