@@ -45,8 +45,8 @@ You should determine which of the two collections you want to create records in.
 ```bash
 cd ~/git/SdrFriend
 # The command bundle exec rake -T # allows you to view all available tasks in SdrFriend
-bundle exec rake fda:mint[private,100,"/Users/sgb334/Desktop/new_handles.csv"]
-# First part: Is the collection public or private? (in this case private)
+bundle exec rake fda:mint[restricted,100,"/Users/sgb334/Desktop/new_handles.csv"]
+# First part: Is the collection public or restricted? (in this case restricted)
 # Second part: How many IDs do you want? (in this case 100)
 # Third part: The path to where you want the new file to be saved and your name for it (in this case new_handles.csv)
 ```
