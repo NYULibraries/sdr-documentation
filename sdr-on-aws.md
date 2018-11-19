@@ -1,4 +1,4 @@
-# SDR on AWS Architecture
+# Outline of SDR on Amazon Web Services Architecture
 
 Stephen Balogh <mailto:sgb334@nyu.edu>, 5/10/2018
 

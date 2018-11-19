@@ -1,47 +1,15 @@
-# SDR Example/Helpful Commands
+# Helpful Commands & Code for the SDR
 
-Stephen Balogh <mailto:sgb334@nyu.edu>
-
-# Unix tools
-
-Below are glosses on some particularly useful Unix command-line tools for working with collections. I won't go much into any of the basic ones, since there are many general resources online, but in addition to those listed below you should probably have some knowledge of: `pwd`, `ls`, `cd`, `mkdir`, `rm` (and why you should be careful with it!), `touch`, `less` (or some other scrolling text reader), `cat`, `vim` (or `emacs` or `nano` or whatever), `ssh`...
-
-## Find
-
-`find` is great! It does a lot, but most important for us is that it allows you to recursively search through a directory to list all of the files that exist in it or any of its subdirectories.
-
-```bash
-## Find all files on your desktop
-cd ~/Desktop
-find . ## the . just means current directory
-```
-
-Note that you can write the output of the above to a text file, instead of to the console:
-
-```bash
-find . > ~/Desktop/find_result.txt ## Creates a new file containing the results
-```
-
-You can also add name restictions to `find`; for instance, maybe you want to gather a list of all files within a directory (_and_ any of its subdirectories) which are ESRI Shapefiles. Therefore, we are only interested in files ending in `.shp`:
-
-```bash
-cd east_view_collection
-# this assumes that there's a folder called east_view_collection that has a bunch of shapefiles in it
-find . -name "*.shp"
-# this recursively locates all files matching the given pattern
-find . -name "*.shp" > ~/Desktop/east_view_files.txt
-# this saves the result to a text file, which makes it easy to see how many shapefiles exist
-```
+Below are glosses on some particularly useful Unix command-line tools for working with collections. In addition to those listed below you should probably have some knowledge of: `pwd`, `ls`, `cd`, `mkdir`, `rm` (and why you should be careful with it!), `touch`, `less` (or some other scrolling text reader), `cat`, `vim` (or `emacs` or `nano` or whatever), `ssh`...
 
 ## Grep
 
 `grep` is a very powerful way to search through a stream of text.
 
-TODO: provide examples
 
 ## Zip
 
-This is just the command-line tool for creating ZIP archives.
+This is the command-line tool for creating ZIP archives.
 
 ```bash
 cd ~/Desktop/sdr_staging
@@ -196,3 +164,20 @@ aws s3 sync \
 ### A desktop application, like _Transmit_
 
 If you'd prefer an SFTP-like interface to S3, I highly reccomend [Transmit](https://panic.com/transmit/) (Mac only though!). It actually _is_ an SFTP client, but it has the ability to interact with S3, as well as many other cloud storage providers.
+
+
+### Addendum: General Ruby Tricks
+
+#### Turn off Ruby interpreter "echo"
+
+```ruby
+irb_context.echo = false
+```
+
+#### Consume a list in batches
+```ruby
+some_list = (1..10000).to_a ## makes a list from the range 1 -> 10000
+some_list.each_slice(100) do |slice| ## iterates over the list in slices of size 100
+  puts slice[0] ## print the first element of each slice/batch
+end
+```
