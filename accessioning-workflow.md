@@ -3,13 +3,13 @@ Stephen Balogh <sgb334@nyu.edu> & Andrew Battista <ab6137@nyu.edu>
 
 ### Note
 
-Many of the examples in this document make use of a Ruby gem called **SdrFriend**, so named because of how friendly it is. The codebase for that tool, as well as documentation (including on how to set it up), can be found at its [Github page](https://github.com/sgbalogh/sdrfriend). In order to install this gem, make sure you have:
+Many of the examples in this document make use of a Ruby gem called **SdrFriend**, so named because of how friendly it is. The codebase for that tool, as well as documentation (including on how to set it up), can be found at its [Github page](https://github.com/NYULibraries/sdrfriend). In order to install this gem, make sure you have:
 
 - The latest version of Ruby installed using [Ruby Version Manager](https://rvm.io/rvm/install)
 - HomeBrew [installed](https://brew.sh/)
 - Installed the bundler gem by entering `gem install bundler`
 
- E mail Andrew Battista to get a copy of **SdrFriend** Then, download the repository, navigate to it and enter `bundle install`
+ To download **SdrFriend** go to the [Github page](https://github.com/NYULibraries/sdrfriend). Then, navigate to it and enter `bundle install`
 
 ## 1. Assessment
 
@@ -30,7 +30,7 @@ The above process is just one way to determine how many layers exist in a collec
 
 ## 2a. Creating Repository Records / "Minting Handles"
 
-Once the number of items in a given collection is determined, the next step is to "mint" the requisite number of IDs from the FDA. Note that all collection additions should follow this minting process from the start. **Do not create an item in the SDR using the DSpace interface.** Instead, even if you are only creating one item, use **SdrFriend** and update the Handle table immediately.
+Once the number of items in a given collection is determined, the next step is to "mint" the requisite number of IDs from the FDA. Note that all collection additions should follow this minting process from the start. **Do not create an item in the SDR using the DSpace interface directly.** Instead, even if you are only creating one item, use **SdrFriend** and update the Handle table immediately.
 
 SDR assets span two different collections on the FDA, both located within the [Division of Libraries]("https://archive.nyu.edu/handle/2451/14821") community. They are:
  - [Spatial Data Repository]("https://archive.nyu.edu/handle/2451/33902") `dspace id: 651`
@@ -60,7 +60,7 @@ The FDA (confusingly) uses two types of IDs to refer to records: an internal id 
 
 The Handles are great for public consumption, but unfortunately the REST API for the Faculty Digital Archive (i.e., the way in which programmed tools interact with the repository) requires the internal dspace_id, and there's no simple way to turn one into another. As a work around, we manage our own lookup table, stored in the [edu.nyu repository]("https://github.com/OpenGeoMetadata/edu.nyu/blob/master/misc/handle-dspace-lookup.csv") on GitHub.
 
-**Make sure to update this table whenever you pre-allocate / "mint" new FDA records. Disassociating the dspace_id from the Handle identifier causes problems down the line**
+**Make sure to update this table whenever you pre-allocate / "mint" new FDA records. Disassociating the dspace_id from the Handle identifier causes problems down the line.**
 
 One way to make updates to the lookup table is to set up git to commit to the `edu.nyu` metadata repository (see [these instructions on how to do it](https://help.github.com/articles/set-up-git/)). If you're already set up to commit to the edu.nyu repository, here's a simple way to update the table:
 
@@ -93,10 +93,10 @@ These days, it seems like simply working in a spreadsheet is the best way to sta
 
 ```bash
 cd ~/git/SdrFriend
-bundle exec rake metadata:template[/Users/sgb334/Desktop/new_collection.csv]
+bundle exec rake metadata:template[/Users/staff/Desktop/new_collection.csv]
 ## this stipulates the path where you want to save the file and the name of the file
 ```
-The first data you should add is the dspace_id and Handle attributes from the collection you just pre-allocated. Go ahead and paste them into the CSV. Feel free to add in additional columns to the CSV document if it's convenient to do so (such as "original file names"), though **only the columns listed in the template** will persist after converting the CSV to actual GeoBlacklight records. Also, very important: **don't rename any of the existing template columns.**
+The first data you should add is the `dspace_id` and Handle attributes from the collection you just pre-allocated. Go ahead and paste them into the CSV. Feel free to add in additional columns to the CSV document if it's convenient to do so (such as "original file names"), though **only the columns listed in the template** will persist after converting the CSV to actual GeoBlacklight records. Also, very important: **don't rename any of the existing template columns.**
 
 From here, do whatever you need to do to fill in the rest of the columns. In general, you are responsible for all of the metadata elements; the only ones which cannot be filled in at this time are the `ref:download-url` and `ref:documentation-url` fields, which are intended to point to FDA bitstreams. That workflow is described below. If you are using the Google Sheets template, the `layer_modified_dt` field should also automatically update as you work in the Sheet. If you have any questions about the rules or best practices for filling out metadata fields, refer to the [GeoBlacklight Schema](https://github.com/geoblacklight/geoblacklight/blob/master/schema/geoblacklight-schema.md). One of the most difficult fields to come up with is the `solr_geom`, so refer to the appendix of this document for an **SdrFriend** command to find the `solr_geom` of a given file if you aren't going to use another method.
 
@@ -104,16 +104,16 @@ Every FDA/GeoBlacklight layer needs at least one download url (the main, `ref:do
 
 ## 4. Create bitstreams packages and prepare them
 
-At this point, we now need prepare to upload our actual content to the digital repository (FDA). First, we need to assemble the bitstreams that we will be uploading. Although it isn't perfect, the best strategy is to create a "container" for our impending upload. To do this, run the following task in **SDRFriend**
+At this point, we now need prepare to upload our actual content to the digital repository (FDA). First, we need to assemble the bitstreams that we will be uploading. Although it isn't perfect, the best strategy is to create a "container" for our impending upload. To do this, run the following task in **SdrFriend**
 
 ```bash
-bundle exec rake files:download_containers[/Users/andrewbattista/Desktop/containers_for_collection,Users/andrewbattista/Downloads/UAE_collection_metadata.csv]
+bundle exec rake files:download_containers[/Users/staff/Desktop/containers_for_collection,Users/staff/Downloads/UAE_collection_metadata.csv]
 
 ## In the above command, you are first stipulating the area of your computer where you want to create the new folders and then the second part is the name of the CSV that you're using (from step 3 above) to make the GeoBlacklight metadata. Likely, you will have downloaded this from your Google Sheet. It is important that your CSV does not have spaces or numbers in its title
 
 ## Note also that this command just creates a structure of blank folders that are named according to the handles you've already created. After running this command, you'll need to do a similar thing to create documentation folders:
 
-bundle exec rake files:documentation_containers[/Users/andrewbattista/Desktop/doc_containers_for_collection,Users/andrewbattista/Downloads/UAE_collection_metadata.csv]
+bundle exec rake files:documentation_containers[/Users/staff/Desktop/doc_containers_for_collection,Users/staff/Downloads/UAE_collection_metadata.csv]
 
 ```
 
@@ -144,7 +144,7 @@ The same can be said for the codebook or documentation folder that corresponds w
 
 There are a litany of ways of outputting files that make it more or less easy to place them within the appropriate folder and file structure. Some of these may involve homegrown scripts, but in either case, even if you're dragging files into a pre-fabricated list of folders, you're coming out ahead. And the containers will help you to stay organized.
 
-**Suggested advice:** the step of organizing your files can take a lot of time, so when you're done, you may want to preserve the folders and files you've organized in a safe place, because you will need them later to convert the shapefiles to SQL files. For example, it could be a good idea to make a copy of the files and folder with the data in it and put it somewhere else or drag it into the cloud just in case.
+**Suggested advice:** The step of organizing your files can take a lot of time, so when you're done, you may want to preserve the folders and files you've organized in a safe place, because you will need them later to convert the shapefiles to SQL files. For example, it could be a good idea to make a copy of the files and folder with the data in it and put it somewhere else or drag it into the cloud just in case.
 
 After all of the files are in place in the appropriate folder, the final part of this process is to run an **SdrFriend** command to zip individual files up into an archive named after the containing folder:
 
@@ -179,10 +179,10 @@ Once you run this command, check out a few items in the FDA to see if the titles
 
 ## 6a. Upload bitstreams to FDA
 
-Now that the basic metadata is in place in the FDA, we need to actually upload the various primary data & codebook bitstreams (when applicable) to their respective FDA records. We can do this either one bitstream at a time, or in batch:
+Now that the basic metadata is in place in the FDA, we need to upload the various primary data & codebook bitstreams (when applicable) to their respective FDA records. We can do this either one bitstream at a time, or in batch:
 
 ```bash
-bundle exec rake fda:addbit[/Users/sgb334/Desktop/nyu_2451_12345.zip]
+bundle exec rake fda:addbit[/Users/staff/Desktop/nyu_2451_12345.zip]
 
 ## This command adds a single bitstream to a single record
 ```
@@ -190,14 +190,14 @@ bundle exec rake fda:addbit[/Users/sgb334/Desktop/nyu_2451_12345.zip]
 The command above will upload the referenced bitstream to the appropriate FDA record (i.e., the record at http://hdl.handle.net/2451/12345). This will only work, however, if the bitstream follows the naming convention, and if the Handle lookup table has an entry corresponding to this Handle. Otherwise, we would need to specify exactly where we want to upload the bitstream to by referencing that record's internal dspace_id:
 
 ```bash
-bundle exec rake fda:addbit[/Users/sgb334/Desktop/my_file.zip,53423]
+bundle exec rake fda:addbit[/Users/staff/Desktop/my_file.zip,53423]
 ## The number after the file is the dspace_id of the item you're uploading to
 ```
 
 Alternatively, if we are uploading a large number of files that are all stored in the same directory, we can use **SdrFriend** to batch upload them. For this to work, we **must** have files that follow the naming convention detailed in section 4.
 
 ```bash
-bundle exec rake fda:bit_batch[/Users/sgb334/Desktop/containers_for_collection,zip_only]
+bundle exec rake fda:bit_batch[/Users/staff/Desktop/containers_for_collection,zip_only]
 
 ## In this command, the first part points to the path on your computer where the completed bitstream container is, and the second part is a parameter that allows you to stipulate "upload zipped items only." It's best practice to add this in at this step.
 ```
@@ -208,7 +208,7 @@ Running this command requires some monitoring. The bitstream uploads may trip up
 Now that we have uploaded all of the bitstreams to the FDA successfully, we can use **SdrFriend** to retrieve the existing bitstream download URLs, which are important elements for GeoBlacklight metadata. In order to do this, run the following command:
 
 ```bash
-bundle exec rake metadata:bithydrate_csv[/Users/andrewbattista/Downloads/UAE_metadata_final.csv,/Users/andrewbattista/Downloads/UAE_collection_bitstreams.csv]
+bundle exec rake metadata:bithydrate_csv[/Users/staff/Downloads/UAE_metadata_final.csv,/Users/staff/Downloads/UAE_collection_bitstreams.csv]
 # The first part should be a .CSV file that you have. Given the logic of the workflow, it will likely be the same .CSV that you've been using throughout this process to create FDA metadata, GeoBlacklight metadata, etc. The second part of this command generates a new CSV (here you tell it where you want the new file to be)
 ```
 
@@ -219,19 +219,19 @@ After running the command, open up the newly created bitstreams CSV with Atom or
 Now that you have a completely filled out CSV, use **SdrFriend** to transform it into a single JSON file. First, download or save the file you're working on as a CSV (again, remembering to avoid numbers or spaces in the filename). Then, run the following command:
 
 ```bash
-bundle exec rake metadata:csv_to_json[/Users/sgb334/Downloads/eastview_files.csv,/Users/sgb334/Downloads/eastview_files_singlefile.json]
+bundle exec rake metadata:csv_to_json[/Users/staff/Downloads/eastview_files.csv,/Users/staff/Downloads/eastview_files_singlefile.json]
 
 # First part: Path and location where your CSV is
 # Second part: Name of your new .JSON file that has all of the individual layer records within a single file.
 ```
-Doing this will generate a single file with as many .JSON records as there are rows in your CSV. It's a good idea to save this file for the subsequent step of indexing into Solr. For now, though, the next step is to split this one .JSON record into many individual item records that are named `geoblacklight.json` and reside in folders named according to our handle naming structure convention with OpenGeoMetadata. In order to do this, run the following script from the command line in Ruby (begin by typing in `irb`):
+Doing this will generate a single file with as many .JSON records as there are rows in your CSV. It's a good idea to save this file in case you need to make any batch edits later. For now, though, the next step is to split this one .JSON record into many individual item records that are named `geoblacklight.json` and reside in folders named according to our handle naming structure convention with OpenGeoMetadata. In order to do this, run the following script from the command line in Ruby (begin by typing in `irb`):
 
 ```bash
 require 'json'
 
 irb_context.echo = false
 
-nyu_file = File.read('/Users/andrewbattista/Downloads/UAE_complete_metadata_singlefile.json')
+nyu_file = File.read('/Users/staff/Downloads/UAE_complete_metadata_singlefile.json')
 
 ## The file where the original .json that contains all of the records is above. Make sure to include the full path. Change accordingly
 
@@ -248,7 +248,7 @@ parsed_nyu.each do |record|
 
 ## This defines variables that correspond to the text string of the layer_slug_s element
 
-  full_folder = "/Users/andrewbattista/Desktop/edu.nyu/handle"
+  full_folder = "/Users/staff/Desktop/edu.nyu/handle"
 
   `mkdir -p #{full_folder}/#{dir1}/#{dir2}/#{dir3}/#{dir4}`
 
@@ -271,7 +271,7 @@ At this time, **SdrFriend** does not have a native split function, but this may 
 
 #### Overview of vector processing
 
-To enable previews and downloads via GeoServer's WMS / WFS services, we have to create a SQL version of our Shapefiles (in the projection EPSG:4326), and add them to the PostGIS database which stores EPSG:4326 "preview" versions of every vector layer in our collection. Earlier, while assembling bitstream packages for upload to the FDA, the procedure was to simply package up the original geospatial data layer as we downloaded it or received it. Now, however, in order to connect to GeoServer we'll have to make some modifications to it, which include:
+To enable previews and downloads via GeoServer's WMS / WFS services, we have to create a SQL version of our Shapefiles (in the projection EPSG:4326) and add them to the PostGIS database which stores EPSG:4326 "preview" versions of every vector layer in our collection. Earlier, while assembling bitstream packages for upload to the FDA, the procedure was to simply package up the original geospatial data layer as we downloaded it or received it. Now, however, in order to connect to GeoServer we'll have to make some modifications to it, which include:
 
 - Reprojecting the layer to the standardized Coordinate Reference System (CRS) `EPSG:4326` (if it isn't already in that CRS)
 - Renaming the file to represent the Handle associated with it. Earlier we were just naming the containing folder using the Handle convention, and letting the Shapefile keep its original name; now we have to make sure the layer and all the data files that comprise it uses the Handle as its name, so that the resulting table on PostGIS is predictably named
@@ -319,7 +319,7 @@ It's likely that you have saved the container folders that you produced in step 
 ```bash
 require 'find'
 
-FOLDER_WITH_CONTAINERS="/Users/andrewbattista/Desktop/sdr_collection"
+FOLDER_WITH_CONTAINERS="/Users/staff/Desktop/sdr_collection"
 
 ## Gather all paths, recursively, from the folder above, but only
 ## retain those ending with `.zip`
@@ -382,6 +382,8 @@ ubuntu@ip-172-31-48-183:/efs/geoserver/raster/nyu_2451_34189$ ls
 nyu_2451_34189.tif
 ```
 
+TBA: Here, we need more instructions on how to upload raster data.
+
 ##  9. Enable layers on GeoServer
 
 GeoServer can be interacted with through a web-interface, or a REST HTTP API. It is recommended to update or "turn on" layers in batch using the REST API. First, though, it helps to understand the architecture of NYU's GeoServers.
@@ -409,7 +411,7 @@ Each GeoServer instance has access to map data in two ways:
 Enabling layers via the GeoServer API is more efficient. In order to do this, use the GeoServer rake task within the **SdrFriend** to enable the layers:
 
 ```bash
-bundle exec rake geoserver:enable[Users/andrewbattista/UAE_collection_metadata.csv]
+bundle exec rake geoserver:enable[Users/staff/UAE_collection_metadata.csv]
 ## In this command, the path stipulated is the CSV that contains all of the files used to process the collection. This should be the same CSV used to generate the metadata in step 7 above.
 ```
 Once this command happens the layers will be "activated" in the appropriate instance of GeoServer. The blank line beneath each layer that gets posted is the response from the server, and no response is what you want. After the layers have loaded, you can log in to the web interface of the respective GeoServer instance (public or private), click on layer previews, search for a layer from the newly created files, and verify that they are loading and previewing correctly. You may want to examine the attribute table and the geometries in tandem with downloading the original file in QGIS.
@@ -574,6 +576,13 @@ find . -name '.DS_Store' -type f -delete.
 The files should be deleted. You can always delete the files manually in GitHub as well.
 
 ### c. Putting the elements within a batch of JSON records into alphabetical order
+
+**SdrFriend** offers a native tool for alphabetizing the keys within .JSON records. This is good to do before submitting a pull request of new metadata if the records were not initially creatd with **SdrFriend.** In order to do this, run the following command:
+
+ ```bash
+ bundle exec rake metadata:alphabatize[Users/staff/git/edu.nyu]
+ ## Takes all of the .JSON files within a directory and alphabetizes the keys
+ ```
 
 ### d. Removing a single element from a batch of JSON records.
 
