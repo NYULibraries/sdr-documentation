@@ -3,7 +3,7 @@ Stephen Balogh <sgb334@nyu.edu> & Andrew Battista <ab6137@nyu.edu>
 
 ### Note
 
-Many of the examples in this document make use of a Ruby gem called **SdrFriend**, so named because of how friendly it is. The codebase for that tool, as well as documentation (including on how to set it up), can be found at its [Github page](https://github.com/NYULibraries/sdrfriend). In order to install this gem, make sure you have:
+Many of the examples in this document make use of a Ruby gem called **SdrFriend**, so named because of how friendly it is. It's friendly. The codebase for that tool, as well as documentation (including on how to set it up), can be found at its [Github page](https://github.com/NYULibraries/sdrfriend). In order to install this gem, make sure you have:
 
 - The latest version of Ruby installed using [Ruby Version Manager](https://rvm.io/rvm/install)
 - HomeBrew [installed](https://brew.sh/)
