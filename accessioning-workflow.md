@@ -2,15 +2,7 @@
 Stephen Balogh <sgb334@nyu.edu> & Andrew Battista <ab6137@nyu.edu>
 
 ## About
-This documentation was created using:
-
-- macOS Mojave 10.14.5
-- Terminal 2.9.5
-- sdrfriend 0.1.1
-- HomeBrew
-- RVM 2.1.1
-- bundler 1.17.3
-- Transmit 5
+This documentation was created using: macOS Mojave 10.14.5, Terminal 2.9.5, sdrfriend 0.1.1, HomeBrew, RVM 2.1.1, bundler 1.17.3, Transmit 5
 
 Some notes, shortcuts, and frequently used commands:
 - copy a file path holding down the command key, clicking a file name, and pressing alt
