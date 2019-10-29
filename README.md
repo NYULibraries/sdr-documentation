@@ -1,13 +1,11 @@
 # sdr-documentation
 
-This repository is a place for documents detailing workflows, architecture, useful tools, and pieces of code relevant to NYU's [Spatial Data Repository](https://geo.nyu.edu) and the parts of NYU Libraries infrastructure used to maintain it. Most of the scripts were written by Stephen Balogh.
+This repository is a place for documents detailing workflows, architecture, useful tools, and pieces of code relevant to NYU's [Spatial Data Repository](https://geo.nyu.edu) and the parts of NYU Libraries infrastructure used to maintain it. Credits: Stephen Balogh, Andrew Battista, Karen Majewicz, Taylor Hixson
 
 ## Table of Contents
 
 #### Processes
 - [SDR Collection and Accessioning Workflow](accessioning-workflow.md)
-- [Upgrade Process for Production Instance of GeoBlacklight (TBA)]
-- [Management and Upgrade Process for Development Instance of GeoBlacklight (TBA)]
 
 #### Architecture
 - [Outline of Amazon Web Services Architecture](sdr-on-aws.md)

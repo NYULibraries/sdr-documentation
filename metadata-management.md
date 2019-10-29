@@ -3,9 +3,11 @@
 This section is a gathering of scripts for commonly used metadata editing and transformation processes.
 
 ### Table of Contents
-- [Splitting a single JSON file into many individual JSON records](#Splitting a single JSON file into many individual JSON records)
-- [Deleting a Key from all Metadata Records in a Repository](#Deleting a Key from all Metadata Records in a Repository)
--
+- [Splitting a single JSON file into many individual JSON records](#Splitting-a-single-JSON-file-into-many-individual-JSON-records)
+- [Deleting a Key from all Metadata Records in a Repository](#Deleting-a-Key-from-all-Metadata-Records-in-a-Repository)
+- [Appending one or more Subjects or other elements onto an existing batch of GeoBlacklight records](#Appending-one-or-more-Subjects-or-other-elements-onto-an-existing-batch-of-GeoBlacklight-records)
+- [Adding a key-value URL in the references field to one or more records](#Adding-a-key-value-URL-in-the-references-field-to-one-or-more-records)
+
 
 #### Splitting a single JSON file into many individual JSON records
  
@@ -68,7 +70,7 @@ File.open("/Users/staff/Downloads/GlobalMap_singlefile.json", "w") do |f|
 end
 ```
 
-#### Appending one or more Subjects (or other elements) onto an existing batch of GeoBlacklight records
+#### Appending one or more Subjects or other elements onto an existing batch of GeoBlacklight records
 
 ```ruby
 ## this script allows you to add one or more subjects to batches of existing GeoBlacklight records that meet a certain criteria.

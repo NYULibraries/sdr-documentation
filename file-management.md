@@ -2,27 +2,27 @@
 
 ### Table of Contents
 
-* [Unzipping nested .zip files, then deleting the .zip](#Unzipping nested .zip files, then deleting the .zip)
-* [Creating empty folder containers for data downloads](#Creating empty folder containers for data downloads)
-* [Finding all files within a file-folder directory](#Finding all files within a file-folder directory)
-
+* [Unzipping nested .zip files, then deleting the .zip](#Unzipping-nested-.zip-files,-then-deleting-the-.zip)
+* [Creating empty folder containers for data downloads](#Creating-empty-folder-containers-for-data-downloads)
+* [Delete all files of a kind within a directory](#Delete-all-files-of-a-kind-within-a-directory)
+* [Finding all files within a directory](#Finding-all-files-within-a-directory)
+* [Zipping all files in a directory according to the folder that contains them](#Zipping-all-files-in-a-directory-according-to-the-folder-that-contains-them)
+* [Turn off Ruby interpreter echo](#Turn-off-Ruby-interpreter-echo)
+* [Find and replace on huge text files](#Find-and-replace-on-huge-text-files)
 
 ### Unzipping nested .zip files, then deleting the .zip
 
-Occassionally, you will need to expose all parts of files in an archive (usually to determine how many shapefiles are in a given collection). Use this script to do that and also delete the archives that contain the files.
+Occassionally, you will need to expose all parts of files in an archive. Use this script to do that and also delete the archives that contain the files.
 
 ```ruby
 require 'find'
 
 FOLDER_WITH_CONTAINERS="/Users/staff/Desktop/sdr_collection"
 
-## Gather all paths, recursively, from the folder above, but only
-## retain those ending with `.zip`
-
 zip_paths = Find.find(FOLDER_WITH_CONTAINERS).select{ |path| File.extname(path) == ".zip"}
 
 ## For each zip path, we determine its parent directory, and then
-## run bash commands to unzip and delete
+## run bash commands to unzip and delete the zip archive
 
 zip_paths.each do |zp|
   containing_directory = zp.gsub(File.basename(zp),"")
@@ -32,7 +32,7 @@ end
 
 ### Creating empty folder containers for data downloads
 
-When you want to harvest data from an open data repository or some other structured source, you need an efficient way to download files as they are originally named and store them. This script allows you to create empty download containers that are named according to the unique identifier of your download source. It assumes that you have a singlefile.json of many metadata records that are named according to unique ID.
+When you want to harvest data from an open data repository or some other structured source, you need an efficient way to download files as they are originally named and store them. This script allows you to create empty download containers that are named according to the unique identifier of your download source. It assumes that you have a `singlefile.json` of many metadata records that are named according to unique ID.
 
 ```ruby
 require 'json'
@@ -69,12 +69,23 @@ parsed_nyu.each do |record|
 
 end
 ```
+Note that this script actually writes a file called `geoblacklight.json` with the contents of each record and places it within a containing directory. You may want to delete these. If so, navigate to the directory where all the folders are and run the following:
 
-### Delete all kinds of files within a directory recursively
+```bash
+find . -name 'geoblacklight.json' type -f -delete
+```
+### Delete all files of a kind within a directory
 
-### Finding all files within a file-folder directory
+You may want to get rid of all files in a directory, or all of one particular kind of file within a directory. If so, navigate to the containing directory and run the following:
 
-`find` does a lot, but most important for us is that it allows us to recursively search through a directory to list all of the files that exist in it or any of its subdirectories. This is an important first step in assessing a collection and its contents.
+```bash
+find . -name '*.json' type -f -delete
+## Deletes all files that end with the extension .json within the directory
+```
+
+### Finding all files within a directory
+
+`find` does a lot, but most importantly, it allows us to search through a directory to list all of the files that exist in it or any of its subdirectories. This is an important first step in assessing a collection and its contents.
 
 ```bash
 ## Find all files on your desktop or whichever directory you want
@@ -111,76 +122,26 @@ find . -name "*.shp" > ~/Desktop/east_view_files.txt
 # this saves the result to a text file, which makes it easy to see how many shapefiles exist
 ```
 
-### Filtering records / indexing into Solr
+### Zipping all files in a directory according to the folder that contains them
 
-```ruby
-require 'rsolr'
-require 'uri'
-require 'find'
-require 'json'
+A common task is to zip all files within a directory into an archive, name the archive according to the folder that contains them, and to do this recursively. In order to do this, navigate to the directory in question and run the following:
 
-PROD_MD_DIR = '/home/ubuntu/metadata/production'
-
-## Find all `geoblacklight.json` records
-gbl = Find.find(PROD_MD_DIR).select{ |x| File.basename(x) == 'geoblacklight.json'}
-
-puts "Found #{gbl.count} records in: #{PROD_MD_DIR}"
-
-filtered_records = [] ## A place to store them
-
-gbl.each do |path|
-  record = JSON.parse(File.read(path)) ## Read and parse the record
-  if (record['dct_provenance_s'] == 'NYU') || (record['dc_rights_s'] == 'Public') ## See if we want it
-    filtered_records << record
-  end
-end
+```bash
+for i in */; do zip -r "${i%/}.zip" "$i"; done
 ```
+The result leaves the original files in place, but adds a directory with the files compressed.
 
-At this point, we should have all of the records that we're interested in sending to Solr stored within `filtered_records`.
+#### Turn off Ruby interpreter echo
 
-It's never a bad idea to take a closer look, and make sure `filtered_records` contains what you think it does. Try inspecting elements at random. Better yet, slice through the list and check some properties:
-```ruby
-filtered_records.each_slice(100) do |slice|
-  ## Now I'll check the first element of each slice:
-  puts "#{slice[0]['dc_rights_s']} -- #{slice[0]['dc_identifier_s']}"
-end
-```
-
-Looks good? Ok. Now you can use [`RSolr`](https://github.com/rsolr/rsolr).
-
-**Note** that the following uses the actual production Solr core URL. This will only be accessible from `P1_1:metadata`, or if you opened a port in the firewall of `P1_1:solr-core`.
-
-```ruby
-## Create a connection object
-solr = RSolr.connect :url => "http://54.174.220.44:8983/solr/blacklight_core"
-
-## Optionally, confirm that you are connected
-results = solr.get 'select', :params => {:q => '*:*'}
-puts results
-```
-
-To actually index these records, you can use the following code. But **be careful**, particularly when you are interacting with the production Solr core! **Always try indexing to a development core first.**
-
-```ruby
-filtered_records.each_slice(100) do |slice|
-  solr.add slice
-  solr.commit
-end
-```
-
-
-### Addendum: General Ruby Tricks
-
-#### Turn off Ruby interpreter "echo"
-
+When writing Ruby scripts, use the following to disable print outs to the console. This can be useful when manipulating huge files.
 ```ruby
 irb_context.echo = false
 ```
 
-#### Consume a list in batches
-```ruby
-some_list = (1..10000).to_a ## makes a list from the range 1 -> 10000
-some_list.each_slice(100) do |slice| ## iterates over the list in slices of size 100
-  puts slice[0] ## print the first element of each slice/batch
-end
+#### Find and replace on huge text files
+
+When scraping or dealing with massive .JSON files (for example), a regular text editor like Atom is going to crash if you try to load it or use it to find and replace. Better to use vi:
+
+```
+:%s/search_string/replacement_string/g
 ```
