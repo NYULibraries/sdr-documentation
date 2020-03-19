@@ -1,6 +1,6 @@
 # Outline of SDR on Amazon Web Services Architecture
 
-Stephen Balogh <mailto:sgb334@nyu.edu>, 5/10/2018
+Last Upated: Marii Nyrop, 03.19.2020
 
 ## Overview
 
@@ -18,16 +18,15 @@ As a service, it consists of:
 
 ## Elastic IPs
 
-| IP Address       | Domain                                                             |                    EC2 Host | Note                                                                                                                                                    |
-| ---------------- | :----------------------------------------------------------------- | --------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `52.4.204.0`     | [geo.nyu.edu](https://geo.nyu.edu)                                 |     `P1_1:blacklight-rails` |                                                                                                                                                         |
-| `52.3.70.94`     | [maps-public.geo.nyu.edu](https://maps-public.geo.nyu.edu)         |     `P1_1:geoserver-public` |                                                                                                                                                         |
-| `52.2.192.218`   | [maps-restricted.geo.nyu.edu](https://maps-restricted.geo.nyu.edu) | `P1_1:geoserver-restricted` |                                                                                                                                                         |
-| `52.21.211.78`   | [metadata.geo.nyu.edu](https://metadata.geo.nyu.edu)               |             `P1_1:metadata` |                                                                                                                                                         |
-| `54.174.220.44`  | -- _no domain_ --                                                  |            `P1_1:solr-core` | This host should never be accessible to hosts outside of the virtual private cloud, so it needs no domain.                                              |
-| `52.200.118.126` | -- _no domain_ --                                                  |                          `` | Typically used for staging Blacklight; when Blacklight running in `development` env, Libraries Login (with Shibboleth QA) expects a callback at this IP |
-| `52.70.140.149`  | -- _no domain_ --                                                  |                          `` |                                                                                                                                                         |
-| `52.70.140.26`   | -- _no domain_ --                                                  |                          `` |                                                                                                                                                         |
+| IP Address      | Domain                                                             |                        EC2 Host | Note                                                                                                       |
+|-----------------|--------------------------------------------------------------------|--------------------------------:|------------------------------------------------------------------------------------------------------------|
+| `52.4.204.0`    | [geo.nyu.edu](https://geo.nyu.edu)                                 |    `sdr:rails-application_prod` |                                                                                                            |
+| `52.3.70.94`    | [maps-public.geo.nyu.edu](https://maps-public.geo.nyu.edu)         |     `sdr:geoserver-public_prod` |                                                                                                            |
+| `52.2.192.218`  | [maps-restricted.geo.nyu.edu](https://maps-restricted.geo.nyu.edu) | `sdr:geoserver-restricted_prod` |                                                                                                            |
+| `52.21.211.78`  | [metadata.geo.nyu.edu](https://metadata.geo.nyu.edu)               |        `sdr:metadata-workspace` |                                                                                                            |
+| `54.174.220.44` | -- _no domain_ --                                                  |                 `sdr:solr_prod` | This host should never be accessible to hosts outside of the virtual private cloud, so it needs no domain. |
+| `18.213.78.19`  | -- _no domain_ --                                                  |   `sdr:rails-application_stage` | This host is used for application development and is only accessible through NYU network / VPN             |
+| `52.87.53.189`  | -- _no domain_ --                                                  |                `sdr:solr_stage` | This host is used for application development and is only accessible through NYU network / VPN             |
 
 ## Host Descriptions
 
