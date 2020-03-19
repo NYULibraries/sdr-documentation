@@ -30,7 +30,7 @@ As a service, it consists of:
 
 ## Host Descriptions
 
-### EC2: `P1_1:blacklight-rails`
+### EC2: `sdr:rails-application_prod`
 
 This hosts the main GeoBlacklight application. Apache with Phusion Passenger is the web server responsible for hosting it (as a Ruby on Rails application).
 
@@ -48,8 +48,8 @@ This hosts the main GeoBlacklight application. Apache with Phusion Passenger is 
 #### Connections
 
 -   Read access to `geoblacklight-db` (RDS) MySQL database
--   Connection to `P1_1:solr-core` on port `8983`
--   Connection to `P1_1:maps-restricted` on `80`, `443`
+-   Connection to `sdr:solr_prod` on port `8983`
+-   Connection to `sdr:geoserver-restricted_prod` on `80`, `443`
 -   World-accessible on `80` and `443` (Apache will force redirect from `80` to `443`)
 -   SSH (`22`) accessible only as needed
 
@@ -57,7 +57,7 @@ This hosts the main GeoBlacklight application. Apache with Phusion Passenger is 
 
 -   Documentation on [installing Phusion with Apache](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-rails-app-with-passenger-and-apache-on-ubuntu-14-04)
 
-### EC2: `P1_1:geoserver-public`
+### EC2: `sdr:geoserver-public_prod`
 
 This is one of the two GeoServer hosts. This particular one is responsible for web services that provide access to any “public” datasets in the NYU SDR collection. It should be accessible to all IPs. GeoServer is hosted with tomcat7, which is managed as a service.
 
@@ -84,11 +84,11 @@ This is one of the two GeoServer hosts. This particular one is responsible for w
 
 -   Documentation on [configuring SSL with GeoServer/Tomcat](http://docs.geoserver.org/stable/en/user/security/tutorials/cert/index.html)
 
-### EC2: `P1_1:geoserver-restricted`
+### EC2: `sdr:geoserver-restricted_prod`
 
-This is the second of the two GeoServer hosts. It is responsible for hosting all “restricted” datasets in the NYU SDR collection. It should be accessible only to NYU IP address ranges, and to P1_1:blacklight-rails. GeoServer is hosted with tomcat7, which is managed as a service.
+This is the second of the two GeoServer hosts. It is responsible for hosting all “restricted” datasets in the NYU SDR collection. It should be accessible only to NYU IP address ranges, and to `sdr:rails-application_prod`. GeoServer is hosted with tomcat7, which is managed as a service.
 
-_The configuration details are almost identical to that above, for the public GeoServer: `P1_1:geoserver-public`._
+_The configuration details are almost identical to that above, for the public GeoServer: `sdr:geoserver-public_prod`._
 
 #### Configuration / Details
 
@@ -103,9 +103,9 @@ _The configuration details are almost identical to that above, for the public Ge
 
 -   NYU IP range accessible on `80` and `443`
     -   GeoServer is not authentication-aware in any way; rather, it is firewalled to only be accessible to NYU IPs, and then we use OCLC EZproxy to provide off-campus access (similar to any licensed database)
--   Directly accessible to `P1_1:blacklight-rails`, and `P1_1:metadata` on `80` and `443`
+-   Directly accessible to `sdr:rails-application_prod`, and `sdr:metadata-workspace` on `80` and `443`
 
-### EC2: `P1_1:metadata`
+### EC2: `sdr:metadata-workspace`
 
 This is something of an "odds and ends" host. It is useful as a gateway into the private cloud, since it has the ability to directly connect to the Solr instance, our two RDS databases, and all other hosts. We use it to upload tables to PostGIS (PostgreSQL), perform database backups, index records to the production Solr core, and other miscellaneous tasks. It also hosts an Omeka instance used (occasionally) for metadata creation.
 
@@ -124,15 +124,15 @@ This is something of an "odds and ends" host. It is useful as a gateway into the
 
 -   Should be world-accessible on `80` and `443`, only for purposes of Omeka access
 -   SSH (`22`) access to NYU workstations as needed
--   Connection to `P1_1:solr-core` on port `8983`
+-   Connection to `sdr:solr_prod` on port `8983`
 -   MySQL access
 -   PostgreSQL access
 
-### EC2: `P1_1:solr-core`
+### EC2: `sdr:solr_prod`
 
 #### Configuration / Details
 
--   Solr has no authentication mechanism, so it **must be firewalled** at all times, and only be accessible to Blacklight (`P1_1:blacklight-rails`), and to the host responsible for indexing (`P1_1:metadata`)
+-   Solr has no authentication mechanism, so it **must be firewalled** at all times, and only be accessible to Blacklight (`sdr:rails-application_prod`), and to the host responsible for indexing (`sdr:metadata-workspace`)
 -   The production Solr core is `blacklight_core`
     -   Therefore, the endpoint of the relevant production core would be: `http://54.174.220.44:8983/solr/blacklight_core`
 -   Version of Solr is 5.5, but later versions should work without a problem too
@@ -149,8 +149,8 @@ This is something of an "odds and ends" host. It is useful as a gateway into the
 
 #### Connections
 
--   Accessible to `P1_1:blacklight-rails` on `8983`
--   Accessible to `P1_1:metadata` on `8983` and `22`
+-   Accessible to `sdr:rails-application_prod` on `8983`
+-   Accessible to `sdr:metadata-workspace` on `8983` and `22`
 
 ## RDS Databases
 
