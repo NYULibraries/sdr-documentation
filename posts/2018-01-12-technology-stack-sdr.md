@@ -1,12 +1,15 @@
----
-layout: post
-title:  "Post 4 - The Technology Stack: Amazon Web Services Products"
-date:   2018-01-12 10:48:45 -0500
-author: Andrew Battista and Stephen Balogh
-categories: geoblacklight
----
+
+
+# Post 4 - The Technology Stack: Amazon Web Services Products
+
+2018-01-12 10:48:45 -0500  
+Andrew Battista and Stephen Balogh
+
+--- 
 
 *Ths is the fourth post in a series about the deployment of GeoBlacklight at NYU. It was originally published in January, 2016. For an outline to the series, click [here](https://andrewbattista.github.io/geoblacklight/2018/01/09/geoblacklight-overview.html).*
+
+---
 
 GeoBlacklight itself is simple to deploy, and there are [several richly-documented resources on how to do this with Packer, Vagrant, Docker, and other virtual machine tools](http://geoblacklight.org/tutorials.html). However, the dependencies and entire technology stack behind our Spatial Data Infrastructure is a bit complex, so we hope that insight on specs and installations can help others in their development process. Note that neither the specific cloud-based services nor the way these software platforms relate to each other are necessarily intrinsic to GeoBlacklight. There are many other ways to deploy these tools.
 
