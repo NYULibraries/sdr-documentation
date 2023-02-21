@@ -1,12 +1,14 @@
----
-layout: post
-title:  "Post 1 - GeoBlacklight at NYU: A Project Overview"
-date:   2018-01-09 10:48:45 -0500
-author: Andrew Battista and Stephen Balogh
-categories: geoblacklight
+
+# Post 1 - GeoBlacklight at NYU: A Project Overview
+
+2018-01-09 10:48:45 -0500  
+Andrew Battista and Stephen Balogh
+
 ---
 
 *This post was originally published in January 2016 and was designed to be a guide for setting up a Spatial Data Infrastructure using GeoBlacklight. I've placed them here and have made slight updates to reflect recent developments in our project and other projects surrounding this one at NYU.*
+
+---
 
 ### Getting Started with GeoBlacklight
 
