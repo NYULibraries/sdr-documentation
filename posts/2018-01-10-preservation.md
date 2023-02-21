@@ -1,12 +1,14 @@
----
-layout: post
-title:  "Post 2 - DSpace and the Preservation Repository"
-date:   2018-01-10 10:48:45 -0500
-author: Andrew Battista and Stephen Balogh
-categories: geoblacklight
+
+# Post 2 - DSpace and the Preservation Repository
+
+2018-01-10 10:48:45 -0500  
+Andrew Battista and Stephen Balogh
+
 ---
 
 *This is the second in a series of posts on the development of GeoBlacklight at New York University. To see the first post and an overview of the series, visit [here](https://andrewbattista.github.io/geoblacklight/2018/01/10/geoblacklight-overview.html). The post was originally published in January 2016.*
+
+---
 
 ### The role of an institutional repository in building collections
 
