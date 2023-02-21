@@ -1,12 +1,13 @@
----
-layout: post
-title:  "Post 3 - Creating GeoBlacklight Metadata Records"
-date:   2018-01-11 10:48:45 -0500
-author: Andrew Battista and Stephen Balogh
-categories: geoblacklight
----
+## Post 3 - Creating GeoBlacklight Metadata Records
+
+2018-01-11 10:48:45 -0500  
+Andrew Battista and Stephen Balogh
+
+----
 
 *This is the third in a series of posts on the development of GeoBlacklight at NYU. It was originally published in January 2016. For an outline to the posts, click [here.](https://andrewbattista.github.io/geoblacklight/2018/01/09/geoblacklight-overview.html)*
+
+---
 
 ### About Geospatial Metadata
 
