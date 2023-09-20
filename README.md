@@ -1,11 +1,53 @@
-# sdr-documentation
+# SDR Documentation
 
-## Quicklinks
+This repository is *the* place for documentation relevant to NYU's [Spatial Data Repository](https://geo.nyu.edu) and the parts of NYU Libraries infrastructure used to maintain it.
 
-- App: [nyulibraries/spatial_data_repository](https://github.com/nyulibraries/spatial_data_repository)
+> **As of Fall 2023, this repo is being pruned and reorganized as part of a major SDR upgrade sprint; old documentation will be available in the `archive` branch, and only docs vetted as currently correct and useful will make their way to `main`. (WiP)**
+
+## SDR Quicklinks
+
+### Deployments
+- Production: [geo.nyu.edu](https://geo.nyu.edu)
+- Staging: [geo-stage.library.nyu.edu](https://geo-stage.library.nyu.edu/) (requires nyu vpn)
+
+### Repositories
+- Application: [nyulibraries/spatial_data_repository](https://github.com/nyulibraries/spatial_data_repository)
+- Documentation: [nyulibraries/sdr-documentation](https://github.com/nyulibraries/sdr-documentation)
 - CLI Tool: [nyulibraries/sdr-cli](https://github.com/nyulibraries/sdr-cli)
 - Core GBL: [geoblacklight/geoblacklight](https://github.com/geoblacklight/geoblacklight)
+- NYU GIS Records (Prod): [opengeometadata/edu.nyu](https://github.com/opengeometadata/edu.nyu)
+- NYU GIS Records Staging: [nyu-dataservices/gis-metadata-staging](https://github.com/nyu-dataservices/gis-metadata-staging)
 
-This repository is a place for documents detailing workflows, architecture, useful tools, and pieces of code relevant to NYU's [Spatial Data Repository](https://geo.nyu.edu) and the parts of NYU Libraries infrastructure used to maintain it. It was originally created by: Stephen Balogh, Andrew Battista, Karen Majewicz, Taylor Hixson.
+### Deprecated/Archived
+- [nyulibraries/sdrfriend](https://github.com/nyulibraries/sdrfriend)
+- [nyu-dataservices/gis-metadata-sandbox](https://github.com/nyu-dataservices/gis-metadata-sandbox)
 
-As of Fall 2023, this repo is being pruned and reorganized as part of a major SDR upgrade sprint; Old documentation will be archived in the `archive` branch, and only docs vetted as correct and relevant will make their way to `main`. (WiP)
+
+## Contents
+
+### Maintain & Manage
+TO DO: e.g., 
+- AWS Architecture
+- Deploy Workflow
+- Secrets Management
+- Roadmap
+
+### Develop
+TO DO: e.g.,
+- Developing Locally (Mac)
+- Contributor guide
+- App changelog
+
+### Deposit & Curate
+TO DO: e.g.
+- Accessioning Workflow
+- Index Records to Staging and Prod Solr
+- Use FDA API
+- Update Featured Collections and Maps
+
+### Test
+- QA guide
+- Running CI tests
+- Lint Records with GeoCombine
+
+
