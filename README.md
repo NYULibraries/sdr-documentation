@@ -14,7 +14,7 @@ This repository is a place for documents detailing workflows, architecture, usef
 - [Code Snippets for File / Folder Management](file-management.md)
 - [Solr Ingest Scripts](solr-ingest.md)
 - [Using the FDA (DSpace) API](fda-api.md)
-
+- [Deploying SDR](deployment.md)
 #### Additional Resources
 
 Some documentation is listed below. These documents may contain some outdated claims, so always be conscious of the dates (and defer to the materials listed above in case of conflicting information):
