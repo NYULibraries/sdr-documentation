@@ -38,9 +38,9 @@ TO DO: e.g.,
 - Contributor guide
 - App changelog
 
-### Deposit & Curate
+### Curate & Deposit
 TO DO: e.g.
-- Accessioning Workflow
+- Accessioning Workflows
 - Index Records to Staging and Prod Solr
 - Use FDA API
 - Update Featured Collections and Maps
