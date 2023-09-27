@@ -18,6 +18,9 @@ This repository is *the* place for documentation relevant to NYU's [Spatial Data
 - NYU GIS Records (Prod): [opengeometadata/edu.nyu](https://github.com/opengeometadata/edu.nyu)
 - NYU GIS Records Staging: [nyu-dataservices/gis-metadata-staging](https://github.com/nyu-dataservices/gis-metadata-staging)
 
+### Misc
+- [Google Drive](https://drive.google.com/drive/folders/0B1StS1CI0jNRfmRkZ1BHbXRUdkJlemFoeUNsRDdxOUxUdVotTWpqdmJfRFFSei1DTUc0cUE)
+
 ### Deprecated/Archived
 - [nyulibraries/sdrfriend](https://github.com/nyulibraries/sdrfriend)
 - [nyu-dataservices/gis-metadata-sandbox](https://github.com/nyu-dataservices/gis-metadata-sandbox)
