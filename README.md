@@ -24,6 +24,7 @@ This repository is *the* place for documentation relevant to NYU's [Spatial Data
 ### Deprecated/Archived
 - [nyulibraries/sdrfriend](https://github.com/nyulibraries/sdrfriend)
 - [nyu-dataservices/gis-metadata-sandbox](https://github.com/nyu-dataservices/gis-metadata-sandbox)
+- [spatial_data_repository wiki](https://github.com/NYULibraries/spatial_data_repository/wiki)
 
 
 ## Contents
