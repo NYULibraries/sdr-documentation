@@ -19,6 +19,7 @@ This repository is *the* place for documentation relevant to NYU's [Spatial Data
 - NYU GIS Records Staging: [nyu-dataservices/gis-metadata-staging](https://github.com/nyu-dataservices/gis-metadata-staging)
 
 ### Misc
+- [2023 Documentation Scan](https://docs.google.com/spreadsheets/d/1cEoenvQXXhaA6mCGs4gtJlEN_AasXOArnFJa-561Kq0)
 - [Google Drive](https://drive.google.com/drive/folders/0B1StS1CI0jNRfmRkZ1BHbXRUdkJlemFoeUNsRDdxOUxUdVotTWpqdmJfRFFSei1DTUc0cUE)
 
 ### Deprecated/Archived
