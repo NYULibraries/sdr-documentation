@@ -54,6 +54,6 @@ TO DO: e.g.
 ### Test
 - QA guide
 - Running CI tests
-- Lint Records with GeoCombine
+- [Validate GeoJSON Records to the JSON Schema(s)](curate/add-json-records.md#local-development--validation)
 
 
