@@ -46,6 +46,7 @@ TO DO: e.g.,
 ### Curate & Deposit
 TO DO: e.g.
 - Accessioning Workflows
+- [Add and validate GeoJSON records in GitHub (staging and cannonical OpenGeoMetadata repos)](curate/add-json-records.md)
 - Index Records to Staging and Prod Solr
 - Use FDA API
 - Update Featured Collections and Maps
