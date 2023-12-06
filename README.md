@@ -31,20 +31,17 @@ This repository is *the* place for documentation relevant to NYU's [Spatial Data
 ## Contents
 
 ### Maintain & Manage
-TO DO: e.g., 
 - AWS Architecture
-- Deploy Workflow
+- [Deploy the GeoBlacklight Rails App](maintain/deploy.md)
 - Secrets Management
 - Roadmap
 
 ### Develop
-TO DO: e.g.,
 - Developing Locally (Mac)
 - Contributor guide
 - App changelog
 
 ### Curate & Deposit
-TO DO: e.g.
 - Accessioning Workflows
 - [Add and validate GeoJSON records in GitHub (staging and cannonical OpenGeoMetadata repos)](curate/add-json-records.md)
 - Index Records to Staging and Prod Solr
