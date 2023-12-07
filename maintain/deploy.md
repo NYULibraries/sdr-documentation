@@ -28,4 +28,4 @@ As of fall 2023, the SDR Rails app is deployed to our AWS enviroments (both stag
     bundle exec cap production deploy
     ```
 
-> NOTE: Your locally cloned codebase is NOT what's being deployed when you run `cap deploy`! You are are actually just using you local permissions and the config settigs in the local repo to deploy the contents of the `main` branch of [NYULibraries/spatial_data_repository repository](https://github.com/NYULibraries/spatial_data_repository) on GitHub. So make sure what's in `main` is what you're ready to deploy.
+> NOTE: Your locally cloned codebase is NOT what's being deployed when you run `cap deploy`! You are are actually just using your local permissions and the config settigs in the local repo to deploy the contents of the `main` branch of [NYULibraries/spatial_data_repository repository](https://github.com/NYULibraries/spatial_data_repository) on GitHub. So make sure what's in `main` on GitHub is what you're ready to deploy.
