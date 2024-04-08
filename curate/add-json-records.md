@@ -7,15 +7,44 @@ We have two repositories where we store metadata records for the SDR:
 
 All new NYU records should be made in [nyu-dataservices/gis-metadata-staging](https://github.com/gis-metadata-staging), validated, then merged via PR over to [opengeometadata/edu.nyu](https://github.com/opengeometadata/edu.nyu) when ready. Both repositories should be in-sync whenever possible.
 
-
-TO DO — ADD DIAGRAM OF INSTRUCTIONS HERE 
- 
 ## Instructions
 
-1. You can add records or record fixes to [NYU-DataServices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) in a new branch (e.g., `batch-lidar-2023` or `patch-dct-language-sm`) from your local machine or directly in the GitHub GUI. Just make sure the records are in the correct place for their schema, e.g., `metadata-1.0` or `metadata-aardvark`. *(Note: Only aardvark records will get indexed to the NYU Spatial Data Repository as of Fall 2023.)*
-2. When the records in the branch are ready, make a pull request from your branch to `main` in [the same staging repo]((https://github.com/NYU-DataServices/gis-metadata-staging)). This will trigger linting for the records in GitHub Actions. (See badges above)
-3. *** *TO DO * ** After the linters & PR pass, merging into `main` will trigger indexing of the aardvark records found in the `main` branch of [NYU-DataServices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) to NYU's [staging instance of the SDR](https://geo-stage.library.nyu.edu/) for QA testing.* *(Must be on NYU VPN to view the staging instance)*
-4. After QA on staging, a PR can be submitted from [NYU-DataServices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) over to the cannoinical repo [OpenGeoMetadata/edu.nyu](https://github.com/OpenGeoMetadata/edu.nyu). Any records pulled into this cannonical OpenGeoMetadata repo will get indexed to our production instance (and other institutions'!)
+1. Clone [NYU-DataServices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) and `cd gis-metadata-staging`.
+2. Create a new branch (`git checkout -b [[branch name]]`) using the following conventions for branch name:
+
+    | Action type | Branch name |
+    | --- | --- |
+    | Edit existing records | edit-COLLECTION-SHORT-NAME |
+    | Create new records | new-COLLECTION-SHORT-NAME |
+
+    The collection short name should be a keyword from the title of the collection. Use lower case and separate words with hyphens.
+
+    **Example:** `git checkout -b edit-egress`
+
+3. Edit the relevant JSON records, replace existing records with the JSON modified in Airtable, or add new records to the `metadata-aardvark` folder. (Not `metadata-1.0` *Only aardvark records will get indexed to the NYU Spatial Data Repository as of Fall 2023.)*
+4. When the records in the branch are ready, make a pull request from your branch to `main` in [the same staging repo]((https://github.com/NYU-DataServices/gis-metadata-staging)), using a standardized commit message:
+   - `git add JSON-FILES-CHANGED`, e.g. `git add metadata-aardvark/Datasets/nyu-2451-33876.json`
+   - `git commit` <-- this will open a Vim editor window where you can write the title of the commit and a description. Hit `i`to start editing, entering your commit title on the first line after the comment section, a blank line, then the commit description.
+   - Use the following convention for commit titles:
+     
+        | Commit title keyword | Record change type |
+        | --- |----------------------------------------------|
+        | Field Error | Intended field value not correct             |
+        | Bitstream Edit | Change to location of download URL for asset |
+        | Typo Correction | Inadvertent error in field value |
+        | Object Type Error | Incorrect JSON object type (e.g. array for string in key's value |
+        | General Validation Error | Fix to general linting validation fail |
+        | Add New Records | Add new record to system |
+   
+    - For a description (entered after leaving a blank line after the commit title), offer a short narrative of a 1-2 sentences about what edits are being made.
+    - Close vim using `esc`, `:`, `wq`
+    - Push using `git push --set-upstream origin [[local branch name]]`, e.g. `git push --set-upstream origin edit-egress`
+    - Return to the  [gis-metadata-staging]((https://github.com/NYU-DataServices/gis-metadata-staging)) repo, click on "Pull Requests" on the top menu, and select "New pull request." Set it so that the pull is from your local branch into the repo's `main` branch.
+
+4. When a PR into `main` is created, this will trigger linting for the records in GitHub Actions. (See: [gis-metadata-staging/actions](https://github.com/NYU-DataServices/gis-metadata-staging/actions/workflows/lint.yml)). When they pass, go ahead and merge into `main`
+3. *** *TO DO / NOT IMPLEMENTED * ** Commits to `main` (directly or via merged PR) will trigger indexing of the aardvark records found in the `main` branch of [NYU-DataServices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) to NYU's [staging instance of the SDR](https://geo-stage.library.nyu.edu/) for QA testing.* *(Must be on NYU VPN to view the staging instance)*.
+4. After QA on staging, a PR can be submitted from [NYU-DataServices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) over to the canonical repo [OpenGeoMetadata/edu.nyu](https://github.com/OpenGeoMetadata/edu.nyu). Any records pulled into this canonical OpenGeoMetadata repo will get indexed to our production instance (and other institutions!)
+
 
 ## Local development & validation
 
