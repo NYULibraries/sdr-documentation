@@ -41,7 +41,7 @@ The collection short name should be a keyword from the title of the collection. 
 
  - For a description (entered after leaving a blank line after the commit title), offer a short narrative of a 1-2 sentences about what edits are being made.
  - Close vim using `esc`, `:`, `wq`
- - Push using `git push —set-upstream origin [[local branch name]]`, e.g. `git push —set-upstream origin edit-egress`
+ - Push using `git push --set-upstream origin [[local branch name]]`, e.g. `git push --set-upstream origin edit-egress`
  - Return to the  [gis-metadata-staging]((https://github.com/NYU-DataServices/gis-metadata-staging)) repo, click on "Pull Requests" on the top menu, and select "New pull request." Set it so that the pull is from your local branch into the repo's main branch.
 
 4. Once PR is reviewed and accepted, this will trigger linting for the records in GitHub Actions. (See badges above)
