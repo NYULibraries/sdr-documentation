@@ -22,24 +22,25 @@ All new NYU records should be made in [nyu-dataservices/gis-metadata-staging](ht
     **Example:** `git checkout -b edit-egress`
 
 3. Edit the relevant JSON records, replace existing records with the JSON modified in Airtable, or add new records to the `metadata-aardvark` folder. (Not `metadata-1.0` *Only aardvark records will get indexed to the NYU Spatial Data Repository as of Fall 2023.)*
-4. When the records in the branch are ready, make a pull request from your branch to `main` in [the same staging repo]((https://github.com/NYU-DataServices/gis-metadata-staging)), using a standardized commit message:
-   - `git add JSON-FILES-CHANGED`, e.g. `git add metadata-aardvark/Datasets/nyu-2451-33876.json`
-   - `git commit` <-- this will open a Vim editor window where you can write the title of the commit and a description. Hit `i`to start editing, entering your commit title on the first line after the comment section, a blank line, then the commit description.
-   - Use the following convention for commit titles:
+   4. When the records in the branch are ready, make a pull request from your branch to `main` in [the same staging repo]((https://github.com/NYU-DataServices/gis-metadata-staging)), using a standardized commit message:
+      - `git add JSON-FILES-CHANGED`, e.g. `git add metadata-aardvark/Datasets/nyu-2451-33876.json`
+      - `git commit` <-- this will open a Vim editor window where you can write the title of the commit and a description. Hit `i`to start editing, entering your commit title on the first line after the comment section, a blank line, then the commit description.
+        - Use the following convention for commit titles:
      
-        | Commit title keyword | Record change type |
-        | --- |----------------------------------------------|
-        | Field Error | Intended field value not correct             |
-        | Bitstream Edit | Change to location of download URL for asset |
-        | Typo Correction | Inadvertent error in field value |
-        | Object Type Error | Incorrect JSON object type (e.g. array for string in key's value |
-        | General Validation Error | Fix to general linting validation fail |
-        | Add New Records | Add new record to system |
+             | Commit title keyword | Record change type                                                                               |
+             | --- |--------------------------------------------------------------------------------------------------|
+             | Field Error | Intended field value not correct                                                                 |
+             | Bitstream Edit | Change to location of download URL for asset                                                     |
+             | Update Field | Change a field or fields with new information, as in a new version of a description, title, etc. | 
+             | Typo Correction | Inadvertent error in field value                                                                 |
+             | Object Type Error | Incorrect JSON object type (e.g. array for string in key's value                                 |
+             | General Validation Error | Fix to general linting validation fail                                                           |
+             | Add New Records | Add new record to system                                                                         |
    
-    - For a description (entered after leaving a blank line after the commit title), offer a short narrative of a 1-2 sentences about what edits are being made.
-    - Close vim using `esc`, `:`, `wq`
-    - Push using `git push origin [[local branch name]]`, e.g. `git push origin edit-egress`
-    - Return to the  [gis-metadata-staging]((https://github.com/NYU-DataServices/gis-metadata-staging)) repo, click on "Pull Requests" on the top menu, and select "New pull request." Set it so that the pull is from your local branch into the repo's `main` branch.
+       - For a description (entered after leaving a blank line after the commit title), offer a short narrative of a 1-2 sentences about what edits are being made.
+       - Close vim using `esc`, `:`, `wq`
+       - Push using `git push origin [[local branch name]]`, e.g. `git push origin edit-egress`
+       - Return to the  [gis-metadata-staging]((https://github.com/NYU-DataServices/gis-metadata-staging)) repo, click on "Pull Requests" on the top menu, and select "New pull request." Set it so that the pull is from your local branch into the repo's `main` branch.
 
 4. When a PR into `main` is created, this will trigger linting for the records in GitHub Actions. (See: [gis-metadata-staging/actions](https://github.com/NYU-DataServices/gis-metadata-staging/actions/workflows/lint.yml)). When they pass, go ahead and merge into `main`
 3. *** *TO DO / NOT IMPLEMENTED * ** Commits to `main` (directly or via merged PR) will trigger indexing of the aardvark records found in the `main` branch of [NYU-DataServices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) to NYU's [staging instance of the SDR](https://geo-stage.library.nyu.edu/) for QA testing.* *(Must be on NYU VPN to view the staging instance)*.
