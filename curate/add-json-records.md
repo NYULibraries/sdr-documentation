@@ -3,9 +3,9 @@
 ## Context
 We have two repositories where we store metadata records for the SDR:
 - [opengeometadata/edu.nyu](https://github.com/opengeometadata/edu.nyu) is where cannonical *production* records live; we and other institutions will index records from these repos directly to their GeoBlacklight instances.
-- [nyu-dataservices/gis-metadata-staging](https://github.com/gis-metadata-staging) is a *fork* of opengeometadata/edu.nyu; we use it to work on records that are in process and to index to our NYU SDR staging instance of GeoBlacklight.
+- [nyu-dataservices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging) is a *fork* of opengeometadata/edu.nyu; we use it to work on records that are in process and to index to our NYU SDR staging instance of GeoBlacklight.
 
-All new NYU records should be made in [nyu-dataservices/gis-metadata-staging](https://github.com/gis-metadata-staging), validated, then merged via PR over to [opengeometadata/edu.nyu](https://github.com/opengeometadata/edu.nyu) when ready. Both repositories should be in-sync whenever possible.
+All new NYU records should be made in [nyu-dataservices/gis-metadata-staging](https://github.com/NYU-DataServices/gis-metadata-staging), validated, then merged via PR over to [opengeometadata/edu.nyu](https://github.com/opengeometadata/edu.nyu) when ready. Both repositories should be in-sync whenever possible.
 
 ## Instructions
 
@@ -38,7 +38,7 @@ All new NYU records should be made in [nyu-dataservices/gis-metadata-staging](ht
    
     - For a description (entered after leaving a blank line after the commit title), offer a short narrative of a 1-2 sentences about what edits are being made.
     - Close vim using `esc`, `:`, `wq`
-    - Push using `git push --set-upstream origin [[local branch name]]`, e.g. `git push --set-upstream origin edit-egress`
+    - Push using `git push origin [[local branch name]]`, e.g. `git push origin edit-egress`
     - Return to the  [gis-metadata-staging]((https://github.com/NYU-DataServices/gis-metadata-staging)) repo, click on "Pull Requests" on the top menu, and select "New pull request." Set it so that the pull is from your local branch into the repo's `main` branch.
 
 4. When a PR into `main` is created, this will trigger linting for the records in GitHub Actions. (See: [gis-metadata-staging/actions](https://github.com/NYU-DataServices/gis-metadata-staging/actions/workflows/lint.yml)). When they pass, go ahead and merge into `main`
