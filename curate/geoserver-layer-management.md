@@ -16,9 +16,9 @@ NYU has the following GeoServer instances:
 
 ## Convert Shapefile into GeoServer Layer
 
-The following sections show you how to make a shapefile available as a GeoServer layer via a PostGIS table.
+This section show you how to make a shapefile available as a GeoServer layer via a PostGIS table.
 
-For the following steps you will need the following tools installed:
+For these steps you will need the following tools installed:
 
 - `ogr2ogr` - provided by [gdal]()
 - `shp2pgsql` - provided by [PostGIS]()
@@ -50,8 +50,7 @@ $ ogr2ogr -t_srs EPSG:4326 -lco ENCODING=UTF-8 reprojected.shp original.shp
 
 ### Convert Shapefile to SQL Statements
 
-Next we need to convert our Shapefile into a file of SQL statements that will create a table and populate it with
-records:
+Next we need to convert our Shapefile into a file of SQL statements that will create a table and populate it with records:
 
 ```bash
 $ shp2pgsql -I -s 4326 reprojected.shp table_name > table_name.sql
