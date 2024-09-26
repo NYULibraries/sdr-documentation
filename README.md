@@ -44,7 +44,8 @@ This repository is *the* place for documentation relevant to NYU's [Spatial Data
 ### Curate & Deposit
 - Accessioning Workflows
 - [Add and validate GeoJSON records in GitHub (staging and canonical OpenGeoMetadata repos)](curate/add-json-records.md)
-- Index Records to Staging and Prod Solr
+- [Index Records to Staging and Prod Solr](curate/index-records-solr.md)
+- [Manage Geoserver layers](curate/geoserver-layer-management.md)
 - Use FDA API
 - Update Featured Collections and Maps
 
