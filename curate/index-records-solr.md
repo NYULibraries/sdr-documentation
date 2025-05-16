@@ -1,4 +1,4 @@
-# Index Records to Staging and Prod Solr
+# Index prod records (OpenGeoMetadata) to staging or prod Solr
 
 ## Index to Prod Solr
 
@@ -20,7 +20,7 @@
     bundle exec sdr-cli index --directory='./tmp/opengeometadata' --solr_url='http://{SOLR_PROD_URL}:8983/solr/blacklight-core/'
     ```
 
-## Index to Staging
+## Index staging records (NYU data services) to staging Solr
 
 1. SSH into staging Rails instance and cd into current deployment:
     ``` sh
