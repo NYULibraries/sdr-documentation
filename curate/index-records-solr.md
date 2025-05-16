@@ -1,8 +1,8 @@
 # Index Records to Staging and Prod Solr
 
-## Index to Prod
+## Index to Prod Solr
 
-1. SSH into staging instance and cd into current deployment:
+1. SSH into prod OR staging Rails instance and cd into current deployment:
     ``` sh
     cd ~/nyu_geoblacklight/current
     ```
@@ -22,7 +22,7 @@
 
 ## Index to Staging
 
-1. SSH into staging instance and cd into current deployment:
+1. SSH into staging Rails instance and cd into current deployment:
     ``` sh
     cd ~/nyu_geoblacklight/current
     ```
